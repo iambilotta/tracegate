@@ -2,50 +2,58 @@
 generates ALL the as-is documentation.
 
 Strategy: a tiny fixture tree (2 Java test classes: spec'd FR, spec-missing FR, INV via
-class-name suffix) runs through walk_tests() + render(); the full markdown output is
-compared byte-for-byte against the committed golden. Any behavioral change in the
-generator (tree-sitter API drift after a dependency bump, a refactor that changes
-rendering) fails HERE, in `make scripts-test`, instead of silently corrupting 15
+class-name suffix) runs through the Java adapter + the core requirements renderer; the
+full markdown output is compared byte-for-byte against the committed golden. Any
+behavioral change in the generator (tree-sitter API drift after a dependency bump, a
+refactor that changes rendering) fails HERE instead of silently corrupting the
 generated docs at the next commit.
 
+Paths are CANONICAL repo-relative (ADR-0007): relative to the fixture repo root, never
+a truncated form that drops a leading segment.
+
 When a change is INTENTIONAL: regenerate the golden with
-    python3 scripts/tests/test_generate_requirements_golden.py --update
+    python3 tests/test_generate_requirements_golden.py --update
 review the diff, commit golden + generator together.
 """
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-# Phase 0 layout: the generators live under src/tracegate/ (was housetree/scripts/).
-SRC = HERE.parent / "src" / "tracegate"
-FIXTURE_TEST_ROOT = HERE / "fixtures" / "gest-mini" / "src" / "test" / "java"
+SRC = HERE.parent / "src"
+FIXTURE_REPO = HERE / "fixtures" / "gest-mini"
 GOLDEN = HERE / "fixtures" / "expected-requirements.md"
 
+sys.path.insert(0, str(SRC))
 
-def _load_generator():
-    """Plain import: the generators are snake_case modules (renamed from dashed names
-    precisely so tests can import them without importlib gymnastics)."""
-    sys.path.insert(0, str(SRC))
-    import generate_requirements
-    return generate_requirements
+
+def _cfg():
+    from tracegate.core.config import Config
+    return Config(
+        repo_root=FIXTURE_REPO,
+        app_root=FIXTURE_REPO,
+        label="gest-mini",
+        package_root="it.housetreespa.gest",
+    )
 
 
 def _render_fixture() -> str:
-    gen = _load_generator()
-    reqs = list(gen.walk_tests(FIXTURE_TEST_ROOT))
-    return gen.render(reqs)
+    from tracegate.adapters.lang import java as java_adapter
+    from tracegate.core import render
+    cfg = _cfg()
+    reqs = list(java_adapter.extract(cfg))
+    return render.requirements_md(reqs, cfg.label)
 
 
 def test_generator_output_matches_the_golden_file():
     actual = _render_fixture()
     assert GOLDEN.exists(), (
         f"golden file missing: {GOLDEN}\n"
-        "generate it: python3 scripts/tests/test_generate_requirements_golden.py --update")
+        "generate it: python3 tests/test_generate_requirements_golden.py --update")
     expected = GOLDEN.read_text(encoding="utf-8")
     assert actual == expected, (
         "generator output drifted from the golden file.\n"
         "If the change is intentional, regenerate + review + commit:\n"
-        "  python3 scripts/tests/test_generate_requirements_golden.py --update")
+        "  python3 tests/test_generate_requirements_golden.py --update")
 
 
 def test_fixture_covers_the_three_behaviors_the_golden_pins():
@@ -57,6 +65,9 @@ def test_fixture_covers_the_three_behaviors_the_golden_pins():
     # the category suffix is stripped from the ID (SampleInvariantTest -> Sample)
     assert "INV-sample.domain.Sample#suffix_routes_to_the_invariant_category" in out
     assert "US-001-sample-story" in out    # @spec.us traceability
+    # canonical path: relative to the fixture repo root, with no dropped segment
+    assert "src/test/java/it/housetreespa/gest/sample/domain/SampleTest.java" in out
+    assert "gest-mini/src/test/java" not in out  # the old truncation must not reappear
 
 
 if __name__ == "__main__":

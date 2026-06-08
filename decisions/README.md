@@ -5,8 +5,9 @@ MADR-lite, supersede-mai-editare. Le porte a senso unico del piano (`../PLAN.md`
 | ADR | Tema | Stato |
 |---|---|---|
 | [0001](./0001-implementation-language.md) | Linguaggio/distribuzione: Python core + binario (Nuitka) | **accepted (lean)** |
-| 0002 | SPI degli adapter (come un terzo aggiunge un linguaggio/framework) | proposed (da scrivere) |
-| 0003 | Schema degli ID di tracciabilita' (generalizzare `<CAT>-<module>.<Class>#<method>` a qualsiasi linguaggio) | proposed |
-| 0004 | Formato config (`tracegate.toml`) + strategia di auto-deduzione dello stack | proposed |
-| 0005 | Confine commodity-wrap (cosa si delega vs cosa si possiede) | proposed |
-| 0006 | Modello di output (markdown + JSON/llms.txt-style) + contratto del drift-gate | proposed |
+| [0002](./0002-adapter-spi.md) | SPI degli adapter (come un terzo aggiunge un linguaggio/framework) | **accepted** |
+| [0003](./0003-traceability-id-schema.md) | Schema degli ID di tracciabilita' (generalizzato a qualsiasi linguaggio) | **accepted** |
+| [0004](./0004-config-and-autodetect.md) | Formato config (`tracegate.toml`) + auto-deduzione dello stack | **accepted** |
+| [0005](./0005-commodity-boundary.md) | Confine commodity-wrap (cosa si delega vs cosa si possiede) | **accepted (lean)** |
+| [0006](./0006-output-model-and-gate.md) | Modello di output (markdown + JSON) + contratto del drift-gate | **accepted** |
+| [0007](./0007-canonical-file-paths.md) | Path canonici: full repo-relative ovunque | **accepted** |

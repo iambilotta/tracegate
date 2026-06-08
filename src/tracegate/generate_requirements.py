@@ -654,17 +654,14 @@ def main(argv: list[str]) -> int:
         print(f"not a directory: {test_root}", file=sys.stderr)
         return 64
     by_us = len(argv) == 3 and argv[2] == "--by-us"
-    # Behavior-identical to the original housetree script, which had two DIFFERENT
-    # base paths for file_rel (a historical quirk this legacy path preserves byte-for-byte):
-    #   - Java tests: relative to test_root.parents[3]  (= the `apps/` dir for housetree)
-    #   - E2E specs : relative to the true repo root     (= `apps/`'s parent)
-    # The richer `tracegate.cli` entry makes both consistent (relative to --target);
-    # this positional path exists only to keep the old bash wrapper a faithful drop-in.
-    java_base = test_root.parents[3]                 # what Java file_rel was relative to
+    # ADR-0007: every file path is CANONICAL — relative to the true repo root. The
+    # Phase-0 quirk where Java tests were based at `test_root.parents[3]` (dropping the
+    # `apps/` segment, giving `gest/src/...`) is gone; both Java and E2E now anchor on
+    # the true repo root, so this positional path matches the `tracegate.cli` output.
     app_root = test_root.parents[2]                  # .../<app> (e.g. .../apps/gest)
     repo_root = test_root.parents[4]                 # true repo root (e.g. .../housetree)
     cfg_java = Config(
-        repo_root=java_base, app_root=app_root,
+        repo_root=repo_root, app_root=app_root,
         label=DEFAULT_APP_SUBDIR, package_root=DEFAULT_PACKAGE_ROOT,
         test_java=test_root, product_md=app_root / "PRODUCT.md",
     )

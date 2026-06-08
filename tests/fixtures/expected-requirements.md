@@ -1,8 +1,8 @@
-# Requirements — apps/gest
+# Requirements — gest-mini
 
-Auto-generated from JUnit test sources by `scripts/generate-requirements.sh`. Do NOT edit by hand: edit the test javadoc instead and rerun. Single source of truth is the test code.
+Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the test javadoc / docstring instead and rerun. Single source of truth is the test code.
 
-**Convention**: category from class-name suffix (`*Test`=FR, `*NfrTest`=NFR, `*InvariantTest`=INV, `*ContractTest`=CON; the `*IT` Spring/Testcontainers variant suffix is orthogonal: `*NfrIT`/`*InvariantIT`/`*ContractIT` get the matching category). Playwright E2E tests (`apps/gest/e2e/tests/*.spec.ts`) join as **E2E**. Spec from javadoc / JSDoc tags `@spec.given` / `@spec.when` / `@spec.then` (plus optional `@spec.adr` / `@spec.us`). Tests without a complete spec are listed with `(spec missing)` so they're visible and lintable.
+**Convention**: category from the test name (`*Test`=FR, `*NfrTest`=NFR, `*InvariantTest`=INV, `*ContractTest`=CON; Python file markers `*invariant*`/`*nfr*`/`*contract*` map the same way; Playwright E2E tests join as **E2E**). Spec from doc-comment tags `@spec.given` / `@spec.when` / `@spec.then` (plus optional `@spec.adr` / `@spec.us`). Tests without a complete spec are listed with `(spec missing)` so they're visible and lintable.
 
 ## Coverage
 
@@ -21,12 +21,12 @@ Auto-generated from JUnit test sources by `scripts/generate-requirements.sh`. Do
 - **When**: the generator parses this method
 - **Then**: the spec renders with the code span converted to backticks
 - **User Story**: US-001-sample-story
-- **File**: `gest-mini/src/test/java/it/housetreespa/gest/sample/domain/SampleTest.java`
+- **File**: `src/test/java/it/housetreespa/gest/sample/domain/SampleTest.java`
 
 #### `FR-sample.domain.Sample#undocumented_test_is_flagged_as_spec_missing`
 
 - _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
-- **File**: `gest-mini/src/test/java/it/housetreespa/gest/sample/domain/SampleTest.java`
+- **File**: `src/test/java/it/housetreespa/gest/sample/domain/SampleTest.java`
 
 ### Domain Invariants
 
@@ -35,4 +35,4 @@ Auto-generated from JUnit test sources by `scripts/generate-requirements.sh`. Do
 - **Given**: the Invariant class-name suffix
 - **When**: the generator categorizes this test
 - **Then**: it lands in the INV bucket, not FR
-- **File**: `gest-mini/src/test/java/it/housetreespa/gest/sample/domain/SampleInvariantTest.java`
+- **File**: `src/test/java/it/housetreespa/gest/sample/domain/SampleInvariantTest.java`

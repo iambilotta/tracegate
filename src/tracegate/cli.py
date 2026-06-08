@@ -1,18 +1,22 @@
-"""tracegate CLI — single entrypoint over the harvested generators.
+"""tracegate CLI.
+
+Zero-config is the headline path:
+
+    tracegate [DIR]            auto-detect stack -> requirements + as-built catalog
+    tracegate [DIR] --check    CI drift-gate: exit 2 if generated docs differ from disk
+    tracegate [DIR] --json     print the machine catalog to stdout (no files written)
+
+Explicit subcommands stay for power users and back-compat:
 
     tracegate requirements --target <repo> [--out DIR] [--check]
     tracegate code-docs    --target <repo> [--out DIR] [--check]
-    tracegate dora         [--repo OWNER/NAME] [--workflow NAME ...] [--out FILE]
+    tracegate dora         [--repo OWNER/NAME] ...
     tracegate diff         BASE_FILE HEAD_FILE
     tracegate check-spec   FILE [FILE ...]
 
-Phase 0: the generators were hardcoded to housetree's `apps/gest` layout. The
-`--target` (repo root) plus `--app-subdir`, `--package-root`, `--label` flags
-de-hardcode them. Defaults reproduce the housetree values so an un-flagged run on
-that repo is byte-for-byte identical to the original scripts.
-
-`--check` is the drift-gate: exit 2 if the generated docs differ from what is on
-disk (CI gate), exit 0 if in sync.
+The drift-gate (`--check`) is the product: exit 2 on drift (CI fails), 0 in sync.
+Auto-detection (manifests/markers) chooses the language + framework adapters; a
+`tracegate.toml` at the target root only overrides (ADR-0004).
 """
 from __future__ import annotations
 
@@ -20,22 +24,49 @@ import argparse
 import sys
 from pathlib import Path
 
-try:  # package or standalone
-    from . import config as _config
-    from . import generate_requirements as reqs
-    from . import generate_code_docs as code_docs
-    from . import generate_dora as dora
-    from . import diff_requirements as diff
-    from . import check_spec_javadoc as check_spec
-except ImportError:  # standalone (sys.path points at this dir)
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    import config as _config  # type: ignore[no-redef]
-    import generate_requirements as reqs  # type: ignore[no-redef]
-    import generate_code_docs as code_docs  # type: ignore[no-redef]
-    import generate_dora as dora  # type: ignore[no-redef]
-    import diff_requirements as diff  # type: ignore[no-redef]
-    import check_spec_javadoc as check_spec  # type: ignore[no-redef]
+from . import check_spec_javadoc as check_spec
+from . import config as _config
+from . import diff_requirements as diff
+from . import generate_code_docs as code_docs
+from . import generate_dora as dora
+from . import generate_requirements as reqs
+from .core import detect, orchestrator
+from .core import render as core_render
 
+
+# --- zero-config default path -------------------------------------------
+
+def cmd_auto(args: argparse.Namespace) -> int:
+    """`tracegate [DIR]`: detect the stack and generate (or gate) the catalog for
+    every detected app. The DX headline: no flags, value at the first run."""
+    target = Path(args.dir).resolve()
+    if not target.is_dir():
+        print(f"not a directory: {target}", file=sys.stderr)
+        return 64
+    out = Path(args.out).resolve() if args.out else None
+    configs = detect.detect(target, out=out)
+
+    if args.json:
+        # machine view to stdout: union of every app's catalog (no files written)
+        import json
+        apps = []
+        for cfg in configs:
+            cat = orchestrator.build_catalog(cfg)
+            apps.append(json.loads(core_render.requirements_json(cat)))
+        print(json.dumps({"tracegate": {"schema": 1, "kind": "multi-app"}, "apps": apps},
+                         indent=2, ensure_ascii=False))
+        return 0
+
+    worst = 0
+    for cfg in configs:
+        adapters = ", ".join(cfg.languages + cfg.frameworks) or "none"
+        print(f"[{cfg.label}] adapters: {adapters}", file=sys.stderr)
+        rc = orchestrator.run(cfg, check=args.check)
+        worst = max(worst, rc)
+    return worst
+
+
+# --- explicit subcommands (back-compat / power users) -------------------
 
 def _add_target_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--target", default=".", help="repo root to document (default: cwd)")
@@ -45,10 +76,8 @@ def _add_target_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--package-root", default=_config.DEFAULT_PACKAGE_ROOT,
                    help="dotted base package the modules hang off "
                         f"(default '{_config.DEFAULT_PACKAGE_ROOT}')")
-    p.add_argument("--label", default=None,
-                   help="human label in doc titles (default: the app-subdir)")
-    p.add_argument("--out", default=None, help="output dir for generated docs "
-                                               "(default: <app>/_generated)")
+    p.add_argument("--label", default=None, help="human label in doc titles (default: the app-subdir)")
+    p.add_argument("--out", default=None, help="output dir for generated docs (default: <app>/_generated)")
     p.add_argument("--check", action="store_true",
                    help="drift gate: exit 2 if docs differ from disk, 0 if in sync")
 
@@ -61,8 +90,6 @@ def _cfg_from(args: argparse.Namespace) -> _config.Config:
 
 
 def cmd_requirements(args: argparse.Namespace) -> int:
-    """Generate requirements.md + requirements-by-us.md (the bash wrapper's job,
-    now config-driven). With --check, exit 2 on drift without writing."""
     cfg = _cfg_from(args)
     if not cfg.test_java.is_dir():
         print(f"no test source tree at: {cfg.test_java}", file=sys.stderr)
@@ -71,7 +98,6 @@ def cmd_requirements(args: argparse.Namespace) -> int:
     by_us_md = reqs.generate(cfg, by_us=True)
     out_main = cfg.generated_dir / "requirements.md"
     out_byus = cfg.generated_dir / "requirements-by-us.md"
-
     if args.check:
         drift = False
         for path, content in ((out_main, main_md), (out_byus, by_us_md)):
@@ -79,7 +105,6 @@ def cmd_requirements(args: argparse.Namespace) -> int:
                 print(f"out of date: {path}", file=sys.stderr)
                 drift = True
         return 2 if drift else 0
-
     cfg.generated_dir.mkdir(parents=True, exist_ok=True)
     out_main.write_text(main_md, encoding="utf-8")
     out_byus.write_text(by_us_md, encoding="utf-8")
@@ -89,16 +114,11 @@ def cmd_requirements(args: argparse.Namespace) -> int:
 
 
 def cmd_code_docs(args: argparse.Namespace) -> int:
-    """Generate the AS-IS code docs (http-endpoints, events, modules, schema, ...).
-    Delegates to the harvested generate_code_docs after pointing its globals at
-    the target via configure()."""
     cfg = _cfg_from(args)
-    code_docs.configure(cfg)
-    return code_docs.main(["--check"] if args.check else [])
+    return code_docs.main(cfg, ["--check"] if args.check else [])
 
 
 def cmd_dora(args: argparse.Namespace) -> int:
-    # generate_dora parses its own argv; forward the remaining args verbatim.
     sys.argv = ["tracegate-dora"] + args.dora_args
     return dora.main()
 
@@ -112,10 +132,25 @@ def cmd_check_spec(args: argparse.Namespace) -> int:
     return check_spec.main()
 
 
+SUBCOMMANDS = ("requirements", "code-docs", "dora", "diff", "check-spec", "auto")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tracegate", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    sub = parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command")
+
+    # zero-config path, also reachable explicitly as `tracegate auto DIR`
+    p_auto = sub.add_parser("auto", help="zero-config: detect stack + generate/gate the catalog")
+    p_auto.add_argument("dir", nargs="?", default=".",
+                        help="target repo to document (default: cwd)")
+    p_auto.add_argument("--check", action="store_true",
+                        help="drift-gate: exit 2 if generated docs differ from disk")
+    p_auto.add_argument("--json", action="store_true",
+                        help="print the machine catalog to stdout (no files written)")
+    p_auto.add_argument("--out", default=None,
+                        help="output dir for generated docs (default: <app>/_generated)")
+    p_auto.set_defaults(func=cmd_auto)
 
     p_req = sub.add_parser("requirements", help="tests-as-requirements catalog (+ by-US view)")
     _add_target_args(p_req)
@@ -144,7 +179,17 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args(argv)
+    raw = list(sys.argv[1:] if argv is None else argv)
+    # Zero-config DX: `tracegate`, `tracegate DIR`, `tracegate DIR --check` with no
+    # subcommand default to `auto`. If the first non-flag token is a known subcommand,
+    # dispatch normally.
+    first = next((a for a in raw if not a.startswith("-")), None)
+    if first not in SUBCOMMANDS:
+        raw = ["auto", *raw]
+    args = parser.parse_args(raw)
+    if getattr(args, "func", None) is None:
+        parser.print_help()
+        return 64
     return args.func(args)
 
 
