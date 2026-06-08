@@ -230,6 +230,8 @@ def _apply_global_overrides(cfg: Config, overrides: dict) -> None:
         cfg.package_root = str(overrides["package_root"])
     if "label" in overrides:
         cfg.label = str(overrides["label"])
+    if "exclude" in overrides:
+        cfg.exclude = list(overrides["exclude"])
 
 
 def _config_from_override(target: Path, app: dict, out: Path | None) -> Config:
@@ -244,6 +246,7 @@ def _config_from_override(target: Path, app: dict, out: Path | None) -> Config:
         package_root=app.get("package_root", _infer_java_package_root(app_root) if "java" in languages else ""),
         languages=languages,
         frameworks=frameworks,
+        exclude=list(app.get("exclude", [])),
     )
     if "python" in languages:
         cfg.src_python = _python_src_root(app_root)

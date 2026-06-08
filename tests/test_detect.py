@@ -21,6 +21,12 @@ def _write(p: Path, content: str = "") -> None:
 
 
 def test_detects_a_python_app_from_pyproject(tmp_path: Path):
+    """
+    @spec.given a directory with a pyproject.toml and .py files
+    @spec.when  zero-config detection runs
+    @spec.then  it enables the python language adapter and not java
+    @spec.us    US-003-stack-detection
+    """
     _write(tmp_path / "pyproject.toml", "[project]\nname='x'\n")
     _write(tmp_path / "src" / "pkg" / "mod.py", "def f(): ...\n")
     configs = detect.detect(tmp_path)
@@ -30,6 +36,12 @@ def test_detects_a_python_app_from_pyproject(tmp_path: Path):
 
 
 def test_detects_a_java_spring_app_with_flyway_and_axon(tmp_path: Path):
+    """
+    @spec.given a Maven repo with Spring + Axon deps and a Flyway migration dir
+    @spec.when  zero-config detection runs
+    @spec.then  it enables the java language and the spring, axon and flyway adapters
+    @spec.us    US-003-stack-detection
+    """
     _write(
         tmp_path / "pom.xml",
         "<project><dependencies>"

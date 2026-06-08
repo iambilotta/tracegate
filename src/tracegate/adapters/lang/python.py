@@ -111,5 +111,8 @@ def extract(cfg: Config) -> Iterator[Requirement]:
             continue
         if not _is_test_file(path) or path in seen:
             continue
+        rel = paths.rel_to_repo(path, cfg.repo_root)
+        if any(ex in rel for ex in cfg.exclude):
+            continue
         seen.add(path)
         yield from _parse_file(path, cfg)

@@ -1,0 +1,51 @@
+name: release
+
+# On a version tag, build a standalone single-file binary per OS (Nuitka, ADR-0001) and
+# attach them to the GitHub Release. Per-ecosystem installers (brew/npm/pip/composer)
+# fetch these binaries — see docs/INSTALL.md.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset: tracegate-linux-x86_64
+          - os: macos-latest
+            asset: tracegate-macos-arm64
+          - os: windows-latest
+            asset: tracegate-windows-x86_64.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install tracegate + Nuitka
+        run: |
+          pip install -e .
+          pip install nuitka
+      - name: Build single-file binary
+        run: python packaging/build_binary.py
+      - name: Rename binary for the platform
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            mv dist/tracegate.exe "dist/${{ matrix.asset }}"
+          else
+            mv dist/tracegate "dist/${{ matrix.asset }}"
+          fi
+      - name: Smoke-test the binary
+        shell: bash
+        run: ./dist/${{ matrix.asset }} --help || dist/${{ matrix.asset }} --help
+      - name: Upload to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.asset }}

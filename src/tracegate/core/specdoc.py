@@ -13,9 +13,14 @@ from .model import Spec
 
 
 def _field(body: str, tag: str) -> str:
-    """First `@spec.<tag>` value from a doc-comment body (multi-line until next @tag)."""
+    """First `@spec.<tag>` value from a doc-comment body (multi-line until the next tag).
+
+    Works for both javadoc/JSDoc (`* @spec.then ...`, leading-star lines) and Python
+    docstrings (`@spec.then ...`, plain lines): the value runs until the next line that
+    starts a `@spec.` / `@` tag (optionally after a leading `*`), or end-of-block.
+    """
     pattern = re.compile(
-        rf"@spec\.{tag}\b\s*(?P<val>.*?)(?=^\s*\*\s*@|\Z)",
+        rf"@spec\.{tag}\b\s*(?P<val>.*?)(?=^\s*\*?\s*@|\Z)",
         re.DOTALL | re.MULTILINE,
     )
     m = pattern.search(body)

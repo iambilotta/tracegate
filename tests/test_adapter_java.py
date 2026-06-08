@@ -26,6 +26,12 @@ def _cfg() -> Config:
 
 
 def test_extracts_requirements_with_canonical_repo_relative_paths():
+    """
+    @spec.given a Java JUnit test fixture under a repo root
+    @spec.when  the java adapter extracts its requirements
+    @spec.then  every file path is canonical full repo-relative, never a truncated form
+    @spec.us    US-004-canonical-paths
+    """
     reqs = list(java_adapter.extract(_cfg()))
     by_id = {r.id: r for r in reqs}
     fr = by_id["FR-sample.domain.Sample#fully_documented_test_renders_in_the_catalog"]

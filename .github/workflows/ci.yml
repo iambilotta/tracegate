@@ -1,0 +1,22 @@
+name: ci
+
+# Tests + the dogfood drift-gate: tracegate must document tracegate, in lockstep.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (runtime + test deps)
+        run: pip install -e '.[test]'
+      - name: Test suite (golden + adapters + detection + orchestrator)
+        run: python -m pytest -q
+      - name: Drift-gate on itself (the living proof of the product)
+        run: PYTHONPATH=src python -m tracegate . --out docs/_generated --check

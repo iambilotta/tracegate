@@ -16,6 +16,12 @@ FIXTURE_REPO = Path(__file__).resolve().parent / "fixtures" / "py-mini"
 
 
 def test_zero_config_run_produces_md_and_json(tmp_path: Path):
+    """
+    @spec.given a target repo detected with zero config
+    @spec.when  the orchestrator runs without --check
+    @spec.then  it writes requirements.md (humans) and requirements.json (machines)
+    @spec.us    US-001-zero-config-run
+    """
     cfg = detect.detect(FIXTURE_REPO, out=tmp_path)[0]
     rc = orchestrator.run(cfg, check=False)
     assert rc == 0
@@ -30,6 +36,12 @@ def test_zero_config_run_produces_md_and_json(tmp_path: Path):
 
 
 def test_drift_gate_passes_when_in_sync_and_fails_after_edit(tmp_path: Path):
+    """
+    @spec.given a generated catalog on disk
+    @spec.when  the drift-gate (--check) runs, first in sync then after a tamper
+    @spec.then  it exits 0 when in sync and 2 when a generated file drifted
+    @spec.us    US-002-drift-gate
+    """
     cfg = detect.detect(FIXTURE_REPO, out=tmp_path)[0]
     orchestrator.run(cfg, check=False)
     # in sync -> 0

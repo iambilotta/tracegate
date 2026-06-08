@@ -1,0 +1,13 @@
+# tracegate documents tracegate (dogfooding). This file is the override that pins the
+# self-catalog: one Python app (the tool itself), excluding the test fixtures (whose
+# files are themselves `test_*.py` and would otherwise pollute the catalog).
+#
+# Run:  make self        (writes docs/_generated/)
+#       make self-check  (drift-gate on itself, the CI proof)
+
+[[apps]]
+path = "."
+label = "tracegate"
+languages = ["python"]
+frameworks = []
+exclude = ["tests/fixtures/"]

@@ -1,0 +1,289 @@
+{
+  "tracegate": {
+    "schema": 1,
+    "kind": "requirements-catalog"
+  },
+  "label": "tracegate",
+  "coverage": {
+    "total": 16,
+    "with_complete_spec": 5,
+    "by_category": {
+      "FR": 16
+    }
+  },
+  "requirements": [
+    {
+      "id": "FR-tests.test_adapter_java#test_class_name_suffix_drives_the_category",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_adapter_java",
+      "method": "test_class_name_suffix_drives_the_category",
+      "file": "tests/test_adapter_java.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_adapter_java#test_extracts_requirements_with_canonical_repo_relative_paths",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_adapter_java",
+      "method": "test_extracts_requirements_with_canonical_repo_relative_paths",
+      "file": "tests/test_adapter_java.py",
+      "spec": {
+        "given": "a Java JUnit test fixture under a repo root",
+        "when": "the java adapter extracts its requirements",
+        "then": "every file path is canonical full repo-relative, never a truncated form",
+        "adr": "",
+        "us": "US-004-canonical-paths",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_adapter_java#test_undocumented_test_is_present_but_incomplete",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_adapter_java",
+      "method": "test_undocumented_test_is_present_but_incomplete",
+      "file": "tests/test_adapter_java.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_adapter_python#test_extracts_a_documented_python_requirement",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_adapter_python",
+      "method": "test_extracts_a_documented_python_requirement",
+      "file": "tests/test_adapter_python.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_adapter_python#test_invariant_filename_routes_to_inv_category",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_adapter_python",
+      "method": "test_invariant_filename_routes_to_inv_category",
+      "file": "tests/test_adapter_python.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_adapter_python#test_undocumented_python_test_is_incomplete",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_adapter_python",
+      "method": "test_undocumented_python_test_is_incomplete",
+      "file": "tests/test_adapter_python.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_detect#test_detects_a_java_spring_app_with_flyway_and_axon",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_detect",
+      "method": "test_detects_a_java_spring_app_with_flyway_and_axon",
+      "file": "tests/test_detect.py",
+      "spec": {
+        "given": "a Maven repo with Spring + Axon deps and a Flyway migration dir",
+        "when": "zero-config detection runs",
+        "then": "it enables the java language and the spring, axon and flyway adapters",
+        "adr": "",
+        "us": "US-003-stack-detection",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_detect#test_detects_a_python_app_from_pyproject",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_detect",
+      "method": "test_detects_a_python_app_from_pyproject",
+      "file": "tests/test_detect.py",
+      "spec": {
+        "given": "a directory with a pyproject.toml and .py files",
+        "when": "zero-config detection runs",
+        "then": "it enables the python language adapter and not java",
+        "adr": "",
+        "us": "US-003-stack-detection",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_detect#test_empty_dir_still_returns_one_config_so_a_run_never_no_ops",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_detect",
+      "method": "test_empty_dir_still_returns_one_config_so_a_run_never_no_ops",
+      "file": "tests/test_detect.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_detect#test_infers_the_java_package_root_from_the_single_child_chain",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_detect",
+      "method": "test_infers_the_java_package_root_from_the_single_child_chain",
+      "file": "tests/test_detect.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_detect#test_tracegate_toml_overrides_detected_frameworks",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_detect",
+      "method": "test_tracegate_toml_overrides_detected_frameworks",
+      "file": "tests/test_detect.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_generate_requirements_golden#test_fixture_covers_the_three_behaviors_the_golden_pins",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_generate_requirements_golden",
+      "method": "test_fixture_covers_the_three_behaviors_the_golden_pins",
+      "file": "tests/test_generate_requirements_golden.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_generate_requirements_golden#test_generator_output_matches_the_golden_file",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_generate_requirements_golden",
+      "method": "test_generator_output_matches_the_golden_file",
+      "file": "tests/test_generate_requirements_golden.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_orchestrator#test_check_on_missing_dir_reports_drift",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_orchestrator",
+      "method": "test_check_on_missing_dir_reports_drift",
+      "file": "tests/test_orchestrator.py",
+      "spec": {
+        "given": "",
+        "when": "",
+        "then": "",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_orchestrator#test_drift_gate_passes_when_in_sync_and_fails_after_edit",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_orchestrator",
+      "method": "test_drift_gate_passes_when_in_sync_and_fails_after_edit",
+      "file": "tests/test_orchestrator.py",
+      "spec": {
+        "given": "a generated catalog on disk",
+        "when": "the drift-gate (--check) runs, first in sync then after a tamper",
+        "then": "it exits 0 when in sync and 2 when a generated file drifted",
+        "adr": "",
+        "us": "US-002-drift-gate",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_orchestrator#test_zero_config_run_produces_md_and_json",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_orchestrator",
+      "method": "test_zero_config_run_produces_md_and_json",
+      "file": "tests/test_orchestrator.py",
+      "spec": {
+        "given": "a target repo detected with zero config",
+        "when": "the orchestrator runs without --check",
+        "then": "it writes requirements.md (humans) and requirements.json (machines)",
+        "adr": "",
+        "us": "US-001-zero-config-run",
+        "ac": "",
+        "complete": true
+      }
+    }
+  ],
+  "sections": []
+}

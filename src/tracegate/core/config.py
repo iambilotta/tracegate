@@ -37,6 +37,9 @@ class Config:
     package_root: str = DEFAULT_PACKAGE_ROOT
     languages: list[str] = field(default_factory=list)
     frameworks: list[str] = field(default_factory=list)
+    # path substrings to skip when scanning sources (e.g. test fixtures of a tool whose
+    # fixtures are themselves test files). Matched against the repo-relative POSIX path.
+    exclude: list[str] = field(default_factory=list)
 
     # Derived locations under the app root. Resolved in __post_init__ but overridable.
     src_main_java: Path = field(default=None)        # type: ignore[assignment]
