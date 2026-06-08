@@ -13,7 +13,7 @@ from typing import Iterator
 import tree_sitter_typescript
 from tree_sitter import Language, Node, Parser
 
-from ...core import paths, specdoc
+from ...core import ids, paths, specdoc
 from ...core.config import Config
 from ...core.model import Requirement
 
@@ -49,7 +49,12 @@ def _preceding_jsdoc(call_node: Node, source: bytes) -> str | None:
 def _parse_file(path: Path, repo_root: Path) -> Iterator[Requirement]:
     source = path.read_bytes()
     tree = _PARSER.parse(source)
-    unit = path.stem  # "screenshots.spec"; .spec stripped by ids
+    # Canonical unit: the category suffix is stripped HERE (one scheme, like the java/
+    # python adapters), so the unit fed to the model is already clean. `path.stem` of
+    # `screenshots.spec.ts` is `screenshots.spec`; strip the trailing `.spec`. Leaving
+    # it raw was the bug that made the auto path emit `E2E-e2e.screenshots.spec#...`
+    # while the explicit path (which strips inline) emitted `E2E-e2e.screenshots#...`.
+    unit = ids.strip_category_suffix(path.stem)
     file_rel = paths.rel_to_repo(path, repo_root)
     stack: list[Node] = [tree.root_node]
     while stack:

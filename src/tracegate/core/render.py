@@ -128,3 +128,77 @@ def requirements_json(catalog: Catalog) -> str:
         "sections": sorted(catalog.sections.keys()),
     }
     return json.dumps(doc, indent=2, ensure_ascii=False, sort_keys=False) + "\n"
+
+
+# --- MANIFEST (session-startup index of every generated doc) -------------
+
+# Hand-curated topic grouping. Order = read priority for a fresh LLM session. Canonical
+# home (the code-docs generator imports it from here) so the auto path and the explicit
+# `code-docs` subcommand index the same set in the same order (ADR-0009).
+MANIFEST_ORDER = [
+    ("Scope & roadmap", [
+        ("requirements.md", "tests-as-requirements catalog (FR/NFR/INV/CON/E2E), 100% spec javadoc"),
+        ("requirements-by-us.md", "tests grouped per User Story with AC coverage gate"),
+    ]),
+    ("Architecture", [
+        ("modules.md", "Modulith canvas + cross-module dependency graph + cycle detection"),
+        ("ports.md", "hexagonal ports → adapters matrix"),
+        ("templates.md", "JTE template tree (params + include graph)"),
+    ]),
+    ("Behavior", [
+        ("http-endpoints.md", "every HTTP route with javadoc + contract reference"),
+        ("events.md", "domain events with emitters + handlers"),
+        ("projections.md", "@ProcessingGroup + read models + ResetHandler idempotence flag"),
+    ]),
+    ("State", [
+        ("schema.md", "Flyway migrations + per-table column inventory"),
+        ("config.md", "application properties per profile + Java usages"),
+        ("dependencies.md", "Maven + npm + Python dependency tree"),
+    ]),
+    ("Quality & debt", [
+        ("coverage.md", "JaCoCo per-file coverage with full file list (incl. 0% files)"),
+        ("todo.md", "TODO/FIXME/HACK/@Deprecated inventory with git blame"),
+        ("adr-index.md", "Architecture Decision Record index + auto-detected ADR candidates"),
+    ]),
+]
+
+
+def manifest_md(label: str, present: set[str]) -> str:
+    """Render MANIFEST.md from the SET of generated filenames (in-memory, not disk).
+
+    `present` is the set of files the catalog will write (e.g. {"requirements.md",
+    "coverage.md", ...}). Topic order is curated; any generated file not in the curated
+    order is listed under 'Other'. JSON outputs are excluded (the manifest indexes the
+    human-readable docs)."""
+    lines = [f"# MANIFEST — {label} auto-generated docs", ""]
+    lines.append(
+        "Read this **first** in a fresh session. Every doc below is regenerated from the code "
+        "(or tests / migrations / properties / pom) on every commit; the markdown is never the "
+        "source of truth. Path-only links so any tool that opens the manifest can lazy-load."
+    )
+    lines.append("")
+    md_present = {n for n in present if n.endswith(".md") and n != "MANIFEST.md"}
+    seen: set[str] = set()
+    for topic, docs in MANIFEST_ORDER:
+        rows = [(name, desc) for name, desc in docs if name in md_present]
+        if not rows:
+            continue
+        lines.append(f"## {topic}")
+        lines.append("")
+        for name, desc in rows:
+            seen.add(name)
+            lines.append(f"- [`{name}`](./{name}) — {desc}")
+        lines.append("")
+    extras = sorted(md_present - seen)
+    if extras:
+        lines.append("## Other generated docs (uncatalogued)")
+        lines.append("")
+        for name in extras:
+            lines.append(f"- [`{name}`](./{name})")
+        lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("**Convention**: `_generated/` is gitignored at the repo root (pattern `**/_generated/`) "
+                 "but the tracked `_generated/` of a documented app IS the docs. Pre-commit "
+                 "regenerates everything; never hand-edit a file in this directory.")
+    return "\n".join(lines).rstrip() + "\n"

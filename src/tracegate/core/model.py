@@ -84,3 +84,9 @@ class Catalog:
     label: str
     requirements: list[Requirement] = field(default_factory=list)
     sections: dict[str, str] = field(default_factory=dict)  # name -> markdown body
+    # Section names derived from a BUILD ARTIFACT (e.g. coverage from a JaCoCo CSV that
+    # only exists after `mvn verify`). The bool is whether that input was present at
+    # generation time. The drift-gate (ADR-0008) regenerates these best-effort but does
+    # NOT hard-fail when the input is absent: a clean checkout with no `target/` would
+    # otherwise report a permanent false drift. Code-derived sections stay hard-gated.
+    build_artifact_sections: dict[str, bool] = field(default_factory=dict)

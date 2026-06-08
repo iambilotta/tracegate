@@ -27,9 +27,7 @@ from pathlib import Path
 from . import check_spec_javadoc as check_spec
 from . import config as _config
 from . import diff_requirements as diff
-from . import generate_code_docs as code_docs
 from . import generate_dora as dora
-from . import generate_requirements as reqs
 from .core import detect, orchestrator
 from .core import render as core_render
 
@@ -83,39 +81,35 @@ def _add_target_args(p: argparse.ArgumentParser) -> None:
 
 
 def _cfg_from(args: argparse.Namespace) -> _config.Config:
-    return _config.resolve(
+    """Resolve the explicit-subcommand Config and run zero-config detection on the chosen
+    app so it drives the SAME adapter engine as the auto path (ADR-0009). The `--target`
+    + `--app-subdir` flags select WHICH app; detection fills in languages/frameworks.
+    Any explicit `--label` / `--package-root` override the detected values."""
+    cfg = _config.resolve(
         args.target, out=args.out, app_subdir=args.app_subdir,
         package_root=args.package_root, label=args.label,
     )
+    detected = detect._build_config(cfg.repo_root, cfg.app_root, cfg.generated_dir)
+    cfg.languages = detected.languages
+    cfg.frameworks = detected.frameworks
+    if args.label is None:
+        cfg.label = detected.label
+    if args.package_root == _config.DEFAULT_PACKAGE_ROOT:
+        cfg.package_root = detected.package_root
+    cfg.src_python = detected.src_python
+    return cfg
 
 
 def cmd_requirements(args: argparse.Namespace) -> int:
+    """Thin view over the one engine: emit only the requirements files."""
     cfg = _cfg_from(args)
-    if not cfg.test_java.is_dir():
-        print(f"no test source tree at: {cfg.test_java}", file=sys.stderr)
-        return 64
-    main_md = reqs.generate(cfg, by_us=False)
-    by_us_md = reqs.generate(cfg, by_us=True)
-    out_main = cfg.generated_dir / "requirements.md"
-    out_byus = cfg.generated_dir / "requirements-by-us.md"
-    if args.check:
-        drift = False
-        for path, content in ((out_main, main_md), (out_byus, by_us_md)):
-            if not path.is_file() or path.read_text(encoding="utf-8") != content:
-                print(f"out of date: {path}", file=sys.stderr)
-                drift = True
-        return 2 if drift else 0
-    cfg.generated_dir.mkdir(parents=True, exist_ok=True)
-    out_main.write_text(main_md, encoding="utf-8")
-    out_byus.write_text(by_us_md, encoding="utf-8")
-    print(f"wrote {out_main} ({len(main_md.splitlines())} lines)")
-    print(f"wrote {out_byus} ({len(by_us_md.splitlines())} lines)")
-    return 0
+    return orchestrator.run(cfg, check=args.check, only=orchestrator._REQUIREMENTS_VIEW)
 
 
 def cmd_code_docs(args: argparse.Namespace) -> int:
+    """Thin view over the one engine: emit only the code-docs / commodity files."""
     cfg = _cfg_from(args)
-    return code_docs.main(cfg, ["--check"] if args.check else [])
+    return orchestrator.run(cfg, check=args.check, only=orchestrator._CODE_DOCS_VIEW)
 
 
 def cmd_dora(args: argparse.Namespace) -> int:

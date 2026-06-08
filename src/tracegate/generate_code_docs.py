@@ -416,33 +416,13 @@ class Dep:
 
 # --- MANIFEST (index of all _generated/*.md) ----------------------------
 
-# Hand-curated topic grouping. Order = read priority for a fresh LLM session.
-MANIFEST_ORDER = [
-    ("Scope & roadmap", [
-        ("requirements.md", "tests-as-requirements catalog (FR/NFR/INV/CON/E2E), 100% spec javadoc"),
-        ("requirements-by-us.md", "tests grouped per User Story with AC coverage gate"),
-    ]),
-    ("Architecture", [
-        ("modules.md", "Modulith canvas + cross-module dependency graph + cycle detection"),
-        ("ports.md", "hexagonal ports → adapters matrix"),
-        ("templates.md", "JTE template tree (params + include graph)"),
-    ]),
-    ("Behavior", [
-        ("http-endpoints.md", "every HTTP route with javadoc + contract reference"),
-        ("events.md", "domain events with emitters + handlers"),
-        ("projections.md", "@ProcessingGroup + read models + ResetHandler idempotence flag"),
-    ]),
-    ("State", [
-        ("schema.md", "Flyway migrations + per-table column inventory"),
-        ("config.md", "application properties per profile + Java usages"),
-        ("dependencies.md", "Maven + npm + Python dependency tree"),
-    ]),
-    ("Quality & debt", [
-        ("coverage.md", "JaCoCo per-file coverage with full file list (incl. 0% files)"),
-        ("todo.md", "TODO/FIXME/HACK/@Deprecated inventory with git blame"),
-        ("adr-index.md", "Architecture Decision Record index + auto-detected ADR candidates"),
-    ]),
-]
+# Canonical home of the topic order + the MANIFEST renderer is `core.render`, so the
+# explicit `code-docs` subcommand and the zero-config auto path index the SAME set in the
+# SAME order (ADR-0009 convergence). Imported here for the standalone code-docs path.
+try:  # package context
+    from .core.render import MANIFEST_ORDER, manifest_md  # noqa: F401
+except ImportError:  # standalone (src/tracegate on sys.path)
+    from core.render import MANIFEST_ORDER, manifest_md  # type: ignore[no-redef]  # noqa: F401
 
 
 # --- main ----------------------------------------------------------------
@@ -1801,39 +1781,14 @@ class CodeDocs:
         return "\n".join(lines).rstrip() + "\n"
 
 
-    def render_manifest(self) -> str:
-        lines = [f"# MANIFEST — {self.APP_LABEL} auto-generated docs", ""]
-        lines.append(
-            "Read this **first** in a fresh session. Every doc below is regenerated from the code "
-            "(or tests / migrations / properties / pom) on every commit; the markdown is never the "
-            "source of truth. Path-only links so any tool that opens the manifest can lazy-load."
-        )
-        lines.append("")
-        existing = {p.name for p in self.GENERATED_DIR.glob("*.md")}
-        seen = set()
-        for topic, docs in MANIFEST_ORDER:
-            rows = [(name, desc) for name, desc in docs if name in existing]
-            if not rows:
-                continue
-            lines.append(f"## {topic}")
-            lines.append("")
-            for name, desc in rows:
-                seen.add(name)
-                lines.append(f"- [`{name}`](./{name}) — {desc}")
-            lines.append("")
-        extras = sorted(existing - seen - {"MANIFEST.md"})
-        if extras:
-            lines.append("## Other generated docs (uncatalogued)")
-            lines.append("")
-            for name in extras:
-                lines.append(f"- [`{name}`](./{name})")
-            lines.append("")
-        lines.append("---")
-        lines.append("")
-        lines.append("**Convention**: `_generated/` is gitignored at the repo root (pattern `**/_generated/`) "
-                     "but apps/gest's `_generated/` IS tracked because the auto-doc IS the docs. Pre-commit "
-                     "regenerates everything; never hand-edit a file in this directory.")
-        return "\n".join(lines).rstrip() + "\n"
+    def render_manifest(self, present: "set[str] | None" = None) -> str:
+        """Render MANIFEST via the shared core renderer so it is byte-identical to the
+        zero-config auto path (ADR-0009). `present` is the set of generated filenames; it
+        defaults to the requirements + framework + commodity .md files the code-docs path
+        always writes, so a `--check` run does not depend on what is already on disk."""
+        if present is None:
+            present = {name for _topic, docs in MANIFEST_ORDER for name, _desc in docs}
+        return manifest_md(self.APP_LABEL, present)
 
 
     def _display_path(self, path: Path) -> Path | str:
