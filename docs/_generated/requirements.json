@@ -5,10 +5,10 @@
   },
   "label": "tracegate",
   "coverage": {
-    "total": 16,
-    "with_complete_spec": 5,
+    "total": 21,
+    "with_complete_spec": 10,
     "by_category": {
-      "FR": 16
+      "FR": 21
     }
   },
   "requirements": [
@@ -112,6 +112,91 @@
         "us": "",
         "ac": "",
         "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_convergence#test_check_is_green_without_jacoco_csv_but_still_catches_code_drift",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_convergence",
+      "method": "test_check_is_green_without_jacoco_csv_but_still_catches_code_drift",
+      "file": "tests/test_convergence.py",
+      "spec": {
+        "given": "a clean checkout with NO build artifact (no target/jacoco.csv)",
+        "when": "the catalog is generated then `--check` runs, first in sync then after a code-derived file is tampered",
+        "then": "the gate is GREEN in sync (coverage is soft-skipped, not a false drift) yet still exits 2 when a code-derived requirement is tampered",
+        "adr": "",
+        "us": "US-004-build-artifact-soft-gate",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_convergence#test_coverage_is_hard_gated_once_the_csv_is_present",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_convergence",
+      "method": "test_coverage_is_hard_gated_once_the_csv_is_present",
+      "file": "tests/test_convergence.py",
+      "spec": {
+        "given": "a JaCoCo CSV present on disk (a build ran)",
+        "when": "the catalog is generated then coverage.md is tampered and `--check` runs",
+        "then": "the gate exits 2: coverage IS gated when its input exists",
+        "adr": "",
+        "us": "US-004-build-artifact-soft-gate",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_convergence#test_e2e_id_strips_spec_suffix_like_every_other_adapter",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_convergence",
+      "method": "test_e2e_id_strips_spec_suffix_like_every_other_adapter",
+      "file": "tests/test_convergence.py",
+      "spec": {
+        "given": "a Playwright `*.spec.ts` E2E test",
+        "when": "the playwright adapter derives its requirement ID",
+        "then": "the `.spec` suffix is stripped (`E2E-e2e.smoke#...`, not `...smoke.spec#...`)",
+        "adr": "",
+        "us": "US-003-zero-config-convergence",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_convergence#test_zero_config_catalog_equals_explicit_subcommands",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_convergence",
+      "method": "test_zero_config_catalog_equals_explicit_subcommands",
+      "file": "tests/test_convergence.py",
+      "spec": {
+        "given": "a repo with tests + framework + commodity sources",
+        "when": "`tracegate .` runs and the explicit requirements + code-docs subcommands run",
+        "then": "both produce the IDENTICAL set of files with byte-identical content",
+        "adr": "",
+        "us": "US-003-zero-config-convergence",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_convergence#test_zero_config_emits_requirements_json_and_commodity_sections",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_convergence",
+      "method": "test_zero_config_emits_requirements_json_and_commodity_sections",
+      "file": "tests/test_convergence.py",
+      "spec": {
+        "given": "a repo detected with zero config",
+        "when": "`tracegate .` runs",
+        "then": "the canonical catalog includes requirements.json AND the commodity sections (coverage, todo, adr-index, dependencies, MANIFEST)",
+        "adr": "",
+        "us": "US-003-zero-config-convergence",
+        "ac": "",
+        "complete": true
       }
     },
     {
@@ -285,5 +370,10 @@
       }
     }
   ],
-  "sections": []
+  "sections": [
+    "adr-index",
+    "coverage",
+    "dependencies",
+    "todo"
+  ]
 }

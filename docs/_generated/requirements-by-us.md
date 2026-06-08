@@ -4,8 +4,8 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
 
 ## Coverage
 
-- Total tests scanned: **16**
-- Tests linked to a User Story: **5**
+- Total tests scanned: **21**
+- Tests linked to a User Story: **10**
 - Tests without `@spec.us` (implementation detail): **11**
 - User Stories declared in PRODUCT.md: **4**
 - User Stories with at least one linked test: **4**
@@ -27,6 +27,22 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
   - **Then**: it enables the java language and the spring, axon and flyway adapters
 - `FR-tests.test_detect#test_detects_a_python_app_from_pyproject`
   - **Then**: it enables the python language adapter and not java
+
+## `US-003-zero-config-convergence`  _(unknown to PRODUCT.md)_
+
+- `FR-tests.test_convergence#test_e2e_id_strips_spec_suffix_like_every_other_adapter`
+  - **Then**: the `.spec` suffix is stripped (`E2E-e2e.smoke#...`, not `...smoke.spec#...`)
+- `FR-tests.test_convergence#test_zero_config_catalog_equals_explicit_subcommands`
+  - **Then**: both produce the IDENTICAL set of files with byte-identical content
+- `FR-tests.test_convergence#test_zero_config_emits_requirements_json_and_commodity_sections`
+  - **Then**: the canonical catalog includes requirements.json AND the commodity sections (coverage, todo, adr-index, dependencies, MANIFEST)
+
+## `US-004-build-artifact-soft-gate`  _(unknown to PRODUCT.md)_
+
+- `FR-tests.test_convergence#test_check_is_green_without_jacoco_csv_but_still_catches_code_drift`
+  - **Then**: the gate is GREEN in sync (coverage is soft-skipped, not a false drift) yet still exits 2 when a code-derived requirement is tampered
+- `FR-tests.test_convergence#test_coverage_is_hard_gated_once_the_csv_is_present`
+  - **Then**: the gate exits 2: coverage IS gated when its input exists
 
 ## `US-004-canonical-paths`
 

@@ -6,9 +6,9 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 
 ## Coverage
 
-- Total tests scanned: **16**
-- With complete spec javadoc: **5** (31%)
-- FR: 16
+- Total tests scanned: **21**
+- With complete spec javadoc: **10** (48%)
+- FR: 21
 
 ## Module `tests`
 
@@ -46,6 +46,46 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 
 - _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
 - **File**: `tests/test_adapter_python.py`
+
+#### `FR-tests.test_convergence#test_check_is_green_without_jacoco_csv_but_still_catches_code_drift`
+
+- **Given**: a clean checkout with NO build artifact (no target/jacoco.csv)
+- **When**: the catalog is generated then `--check` runs, first in sync then after a code-derived file is tampered
+- **Then**: the gate is GREEN in sync (coverage is soft-skipped, not a false drift) yet still exits 2 when a code-derived requirement is tampered
+- **User Story**: US-004-build-artifact-soft-gate
+- **File**: `tests/test_convergence.py`
+
+#### `FR-tests.test_convergence#test_coverage_is_hard_gated_once_the_csv_is_present`
+
+- **Given**: a JaCoCo CSV present on disk (a build ran)
+- **When**: the catalog is generated then coverage.md is tampered and `--check` runs
+- **Then**: the gate exits 2: coverage IS gated when its input exists
+- **User Story**: US-004-build-artifact-soft-gate
+- **File**: `tests/test_convergence.py`
+
+#### `FR-tests.test_convergence#test_e2e_id_strips_spec_suffix_like_every_other_adapter`
+
+- **Given**: a Playwright `*.spec.ts` E2E test
+- **When**: the playwright adapter derives its requirement ID
+- **Then**: the `.spec` suffix is stripped (`E2E-e2e.smoke#...`, not `...smoke.spec#...`)
+- **User Story**: US-003-zero-config-convergence
+- **File**: `tests/test_convergence.py`
+
+#### `FR-tests.test_convergence#test_zero_config_catalog_equals_explicit_subcommands`
+
+- **Given**: a repo with tests + framework + commodity sources
+- **When**: `tracegate .` runs and the explicit requirements + code-docs subcommands run
+- **Then**: both produce the IDENTICAL set of files with byte-identical content
+- **User Story**: US-003-zero-config-convergence
+- **File**: `tests/test_convergence.py`
+
+#### `FR-tests.test_convergence#test_zero_config_emits_requirements_json_and_commodity_sections`
+
+- **Given**: a repo detected with zero config
+- **When**: `tracegate .` runs
+- **Then**: the canonical catalog includes requirements.json AND the commodity sections (coverage, todo, adr-index, dependencies, MANIFEST)
+- **User Story**: US-003-zero-config-convergence
+- **File**: `tests/test_convergence.py`
 
 #### `FR-tests.test_detect#test_detects_a_java_spring_app_with_flyway_and_axon`
 
