@@ -3,7 +3,7 @@
 > **Your tests are your requirements. tracegate proves they never drift — in any stack.**
 
 [![ci](https://github.com/iambilotta/tracegate/actions/workflows/ci.yml/badge.svg)](https://github.com/iambilotta/tracegate/actions/workflows/ci.yml)
-License: Apache-2.0 · Status: **v1.0 (MMP)**
+License: Apache-2.0 · Status: **v1.1**
 
 tracegate is a polyglot, **zero-config** tool that turns your test suite into a
 **machine-checked requirements catalog** and **gates drift in CI**. As a byproduct it
@@ -40,6 +40,13 @@ What you get on the first run:
 - `requirements.json` — the deterministic machine contract (same catalog, CI-friendly).
 - framework sections (when detected): HTTP endpoints, domain events, projections, Flyway
   schema, module canvas, ports matrix, ...
+- commodity sections: coverage, TODO/tech-debt, ADR index, dependency tree, and a
+  `MANIFEST.md` index of the whole catalog.
+
+`tracegate .` (zero-config) is the **canonical output**: it emits the same full catalog the
+explicit `requirements` / `code-docs` subcommands produce for the same repo (same files,
+same bytes, same traceability IDs). The explicit subcommands are thin filtered views over
+the one engine, not a different code path (see [`decisions/0009`](./decisions/0009-zero-config-canonical-output.md)).
 
 ## The convention is an enhancement, not a prerequisite
 
@@ -80,6 +87,12 @@ and **exits 2 on any drift** (0 when in sync), printing a unified diff of exactl
 changed. Wire it into CI and your requirements can never silently fall out of sync with
 the code. The markdown is never the source of truth — to change a doc you change the code
 (rename a test, add a `@spec` tag, comment a migration) and regenerate.
+
+Sections derived from a **build artifact** (today `coverage.md`, from a JaCoCo CSV that
+only exists after `mvn verify`) are gated *softly*: regenerated best-effort, but never a
+false drift on a clean checkout with no `target/`. They are gated normally once the
+artifact is present, so real coverage drift is still caught (see
+[`decisions/0008`](./decisions/0008-build-artifact-soft-gate.md)).
 
 ## How it works
 
