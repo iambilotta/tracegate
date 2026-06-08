@@ -15,7 +15,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tracegate"
-version = "0.0.0"
+version = "1.0.0"
 description = "Verifiable spec-traceability + drift-gate: your tests are your requirements, in any stack."
 requires-python = ">=3.12"
 dependencies = [
