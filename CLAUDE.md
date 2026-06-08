@@ -33,6 +33,8 @@ e genera l'as-built catalog come **sottoprodotto**.
 
 Core **Python + tree-sitter** (Pareto: cio' che gia' gira in housetree), distribuito come **singolo binario per-OS** (Nuitka), installer per-ecosistema. ADR-0001.
 
+Layout reale (v1.0): `src/tracegate/core/` (model · ids · detect · gate · render · paths · orchestrator · config · specdoc) + `src/tracegate/adapters/lang/{java,python}` + `adapters/framework/{spring,axon,flyway,playwright}`. Gli adapter espongono `extract(cfg)` (lang) o `sections(cfg)`/`requirements(cfg)` (framework), SPI in ADR-0002. Niente piu' mutazione di global: `generate_code_docs.py` e' la classe `CodeDocs(cfg)`. CLI zero-config: `tracegate [DIR] [--check] [--json]`.
+
 ## Governance (canon)
 
 - ADR in `decisions/` (MADR-lite, supersede-mai-editare).
@@ -43,4 +45,4 @@ Core **Python + tree-sitter** (Pareto: cio' che gia' gira in housetree), distrib
 
 ## Read order (sessione fredda)
 
-`PLAN.md` → `decisions/` (ADR) → `docs/requirements/`.
+`README.md` (DX + how-it-works) → `PLAN.md` → `decisions/` (ADR-0001..0007) → `docs/_generated/` (il self-catalog: tracegate documenta tracegate).

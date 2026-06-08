@@ -32,6 +32,11 @@ def _load_framework(name: str):
     return import_module(f"tracegate.adapters.framework.{name}")
 
 
+# TODO(v1.1): the zero-config path emits requirements + framework sections (the IP).
+# The cross-cutting commodity sections (coverage, todo, adr-index, dependencies, MANIFEST)
+# still live in `generate_code_docs` and are reachable via the explicit `code-docs`
+# subcommand; fold them into the auto path as a `common` adapter once the commodity-wrap
+# boundary (ADR-0005) lands its first wrapped tool.
 def build_catalog(cfg: Config) -> Catalog:
     """Run every enabled adapter and assemble the catalog for one app."""
     catalog = Catalog(label=cfg.label)
