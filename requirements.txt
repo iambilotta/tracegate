@@ -1,0 +1,5 @@
+# Runtime dependencies for the tracegate generators — PINNED (see pyproject.toml for
+# the rationale). No-frills install path: pip3 install --user --break-system-packages -r requirements.txt
+tree-sitter==0.25.2
+tree-sitter-java==0.23.5
+tree-sitter-typescript==0.23.2

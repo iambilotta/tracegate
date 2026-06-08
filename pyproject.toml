@@ -1,0 +1,45 @@
+# tracegate — the verifiable layer that keeps requirements and code in lockstep.
+# Phase 0 harvest: the working housetree doc-generators, parameterized to run
+# against any target repo. Core Python + tree-sitter (ADR-0001).
+#
+# Install (editable, with test deps):
+#   pip3 install --user --break-system-packages -e '.[test]'
+# Run the golden tests:
+#   python3 -m pytest -q
+# Run against a target:
+#   python3 -m tracegate requirements --target /path/to/repo
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tracegate"
+version = "0.0.0"
+description = "Verifiable spec-traceability + drift-gate: your tests are your requirements, in any stack."
+requires-python = ">=3.12"
+dependencies = [
+    # Pinned EXACT: the generators parse Java 25 / TS via these grammars; a silent
+    # minor bump that changes the AST shape would corrupt every generated doc.
+    # Bump deliberately: update the pin, run the golden tests, commit pin + golden together.
+    "tree-sitter==0.25.2",
+    "tree-sitter-java==0.23.5",
+    "tree-sitter-typescript==0.23.2",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest==9.0.3",
+]
+
+[project.scripts]
+tracegate = "tracegate.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
