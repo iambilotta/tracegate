@@ -13,8 +13,8 @@ Auto-generated. Every `TODO` / `FIXME` / `XXX` / `HACK` marker plus every `@Depr
 
 | File:line | Age | Author | Note |
 |---|---|---|---|
-| `src/tracegate/generate_code_docs.py:1671` | 1d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
-| `src/tracegate/generate_code_docs.py:1675` | 1d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
+| `src/tracegate/generate_code_docs.py:1695` | 1d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
+| `src/tracegate/generate_code_docs.py:1699` | 1d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
 
 ## TODO (6)
 
@@ -24,5 +24,5 @@ Auto-generated. Every `TODO` / `FIXME` / `XXX` / `HACK` marker plus every `@Depr
 | `src/tracegate/generate_code_docs.py:375` | 1d | Francesco Bilotta | / FIXME / @Deprecated inventory ------------------------------ |
 | `src/tracegate/generate_code_docs.py:377` | 1d | Francesco Bilotta | \|FIXME\|XXX\|HACK)\b\s*:?\s*(.*)$") |
 | `src/tracegate/generate_code_docs.py:429` | 1d | Francesco Bilotta | / FIXME / XXX / HACK / @Deprecated |
-| `src/tracegate/generate_code_docs.py:1653` | 1d | Francesco Bilotta | ` / `FIXME` / `XXX` / `HACK` marker plus every `@Deprecated` " |
+| `src/tracegate/generate_code_docs.py:1677` | 1d | Francesco Bilotta | ` / `FIXME` / `XXX` / `HACK` marker plus every `@Deprecated` " |
 | `src/tracegate/generate_dora.py:25` | 1d | Francesco Bilotta | (phase1): deploy-workflow identification is intrinsically project-specific |

@@ -30,7 +30,8 @@ def test_structure_section_renders_a_convention_driven_tree(tmp_path: Path):
     assert structure.startswith("# Structure")
     assert "```" in structure
     assert "├── " in structure or "└── " in structure
-    assert "__pycache__" not in structure  # default exclude set kept noise out
+    assert "test_sample.py" in structure and "pyproject.toml" in structure  # fixture rendered
+    assert "__pycache__/" not in structure  # gitignored noise excluded by convention
 
 
 def test_structure_is_indexed_first_in_the_manifest(tmp_path: Path):

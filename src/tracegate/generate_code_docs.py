@@ -1582,13 +1582,37 @@ class CodeDocs:
             out.append(f.relative_to(self.REPO_ROOT).as_posix())
         return out
 
+    def _repo_display_name(self) -> str:
+        """A STABLE repo name for the structure root, independent of the checkout dir.
+
+        Uses the git remote `origin` basename (identical across every worktree of the same
+        repo), so the tree root does not drift between a main checkout and a `repo-feature/x`
+        worktree (which would otherwise false-fail the drift-gate after a merge). Falls back
+        to the repo-root dir name when there is no remote (e.g. a fixture)."""
+        try:
+            r = subprocess.run(
+                ["git", "remote", "get-url", "origin"],
+                cwd=self.REPO_ROOT, capture_output=True, text=True, check=False,
+            )
+            if r.returncode == 0:
+                url = r.stdout.strip().rstrip("/")
+                if url:
+                    name = url.rsplit("/", 1)[-1].rsplit(":", 1)[-1]
+                    if name.endswith(".git"):
+                        name = name[:-4]
+                    if name:
+                        return name
+        except Exception:
+            pass
+        return self.REPO_ROOT.name or "."
+
     def render_structure(self) -> str:
         """The `structure.md` skeleton: a convention-driven tree snapshot of the repo.
 
         Deterministic (sorted), so it only drifts when the tracked file set changes (add /
         remove / rename), which is exactly when the snapshot should be refreshed."""
         paths, truncated = self.collect_structure_paths()
-        root_name = self.REPO_ROOT.name or "."
+        root_name = self._repo_display_name()
         lines = [
             f"# Structure — `{root_name}`",
             "",
