@@ -40,7 +40,8 @@ What you get on the first run:
 - `requirements.json` — the deterministic machine contract (same catalog, CI-friendly).
 - framework sections (when detected): HTTP endpoints, domain events, projections, Flyway
   schema, module canvas, ports matrix, ...
-- commodity sections: coverage, TODO/tech-debt, ADR index, dependency tree, and a
+- commodity sections: a convention-driven repository **structure** tree (the git-tracked
+  skeleton, read-first), coverage, TODO/tech-debt, ADR index, dependency tree, and a
   `MANIFEST.md` index of the whole catalog.
 
 `tracegate .` (zero-config) is the **canonical output**: it emits the same full catalog the

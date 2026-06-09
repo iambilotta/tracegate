@@ -136,6 +136,9 @@ def requirements_json(catalog: Catalog) -> str:
 # home (the code-docs generator imports it from here) so the auto path and the explicit
 # `code-docs` subcommand index the same set in the same order (ADR-0009).
 MANIFEST_ORDER = [
+    ("Map", [
+        ("structure.md", "convention-driven repository tree (git-tracked skeleton) — read first to orient"),
+    ]),
     ("Scope & roadmap", [
         ("requirements.md", "tests-as-requirements catalog (FR/NFR/INV/CON/E2E), 100% spec javadoc"),
         ("requirements-by-us.md", "tests grouped per User Story with AC coverage gate"),

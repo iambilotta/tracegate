@@ -13,16 +13,16 @@ Auto-generated. Every `TODO` / `FIXME` / `XXX` / `HACK` marker plus every `@Depr
 
 | File:line | Age | Author | Note |
 |---|---|---|---|
-| `src/tracegate/generate_code_docs.py:1559` | 0d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
-| `src/tracegate/generate_code_docs.py:1563` | 0d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
+| `src/tracegate/generate_code_docs.py:1671` | 1d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
+| `src/tracegate/generate_code_docs.py:1675` | 1d | Francesco Bilotta | ", "HACK", "XXX", "TODO", "@Deprecated"): |
 
 ## TODO (6)
 
 | File:line | Age | Author | Note |
 |---|---|---|---|
-| `src/tracegate/core/render.py:160` | 0d | Francesco Bilotta | /FIXME/HACK/@Deprecated inventory with git blame"), |
-| `src/tracegate/generate_code_docs.py:375` | 0d | Francesco Bilotta | / FIXME / @Deprecated inventory ------------------------------ |
-| `src/tracegate/generate_code_docs.py:377` | 0d | Francesco Bilotta | \|FIXME\|XXX\|HACK)\b\s*:?\s*(.*)$") |
-| `src/tracegate/generate_code_docs.py:385` | 0d | Francesco Bilotta | / FIXME / XXX / HACK / @Deprecated |
-| `src/tracegate/generate_code_docs.py:1541` | 0d | Francesco Bilotta | ` / `FIXME` / `XXX` / `HACK` marker plus every `@Deprecated` " |
-| `src/tracegate/generate_dora.py:25` | 0d | Francesco Bilotta | (phase1): deploy-workflow identification is intrinsically project-specific |
+| `src/tracegate/core/render.py:163` | 1d | Francesco Bilotta | /FIXME/HACK/@Deprecated inventory with git blame"), |
+| `src/tracegate/generate_code_docs.py:375` | 1d | Francesco Bilotta | / FIXME / @Deprecated inventory ------------------------------ |
+| `src/tracegate/generate_code_docs.py:377` | 1d | Francesco Bilotta | \|FIXME\|XXX\|HACK)\b\s*:?\s*(.*)$") |
+| `src/tracegate/generate_code_docs.py:429` | 1d | Francesco Bilotta | / FIXME / XXX / HACK / @Deprecated |
+| `src/tracegate/generate_code_docs.py:1653` | 1d | Francesco Bilotta | ` / `FIXME` / `XXX` / `HACK` marker plus every `@Deprecated` " |
+| `src/tracegate/generate_dora.py:25` | 1d | Francesco Bilotta | (phase1): deploy-workflow identification is intrinsically project-specific |

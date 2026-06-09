@@ -102,9 +102,9 @@ def render_outputs(cfg: Config, catalog: Catalog) -> dict[str, str]:
 # canonical catalog (the zero-config default).
 _REQUIREMENTS_VIEW = ("requirements.md", "requirements-by-us.md", "requirements.json")
 _CODE_DOCS_VIEW = (
-    "http-endpoints.md", "events.md", "projections.md", "modules.md", "schema.md",
-    "config.md", "ports.md", "templates.md", "coverage.md", "todo.md", "adr-index.md",
-    "dependencies.md", "MANIFEST.md",
+    "structure.md", "http-endpoints.md", "events.md", "projections.md", "modules.md",
+    "schema.md", "config.md", "ports.md", "templates.md", "coverage.md", "todo.md",
+    "adr-index.md", "dependencies.md", "MANIFEST.md",
 )
 
 

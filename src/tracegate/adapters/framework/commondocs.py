@@ -1,4 +1,8 @@
-"""Commodity code-docs adapter: coverage · todo · adr-index · dependencies.
+"""Commodity code-docs adapter: structure · coverage · todo · adr-index · dependencies.
+
+`structure` is the convention-driven repository tree (the git-tracked skeleton, so
+node_modules / target / build never appear): a single read-first snapshot of where
+everything lives. Code-derived (the filesystem), hard-gated like the others.
 
 These are the cross-cutting, language-/framework-neutral sections that the explicit
 `code-docs` subcommand always produced but the zero-config path used to omit (the
@@ -30,6 +34,7 @@ _BUILD_ARTIFACTS = {
 def sections(cfg: Config) -> dict[str, str]:
     g = cd.CodeDocs(cfg)
     return {
+        "structure": g.render_structure(),
         "coverage": g.render_coverage(),
         "todo": g.render_todos(g.collect_todos()),
         "adr-index": g.render_adr_index(g.parse_adrs(), g.detect_adr_candidates()),

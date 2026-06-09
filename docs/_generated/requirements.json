@@ -5,10 +5,10 @@
   },
   "label": "tracegate",
   "coverage": {
-    "total": 21,
-    "with_complete_spec": 10,
+    "total": 25,
+    "with_complete_spec": 14,
     "by_category": {
-      "FR": 21
+      "FR": 25
     }
   },
   "requirements": [
@@ -368,12 +368,81 @@
         "ac": "",
         "complete": true
       }
+    },
+    {
+      "id": "FR-tests.test_structure#test_structure_is_indexed_first_in_the_manifest",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_structure",
+      "method": "test_structure_is_indexed_first_in_the_manifest",
+      "file": "tests/test_structure.py",
+      "spec": {
+        "given": "a generated catalog",
+        "when": "the MANIFEST is rendered",
+        "then": "it lists structure.md under the read-first Map group, so a fresh session orients from the repo tree before anything else",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_structure#test_structure_section_renders_a_convention_driven_tree",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_structure",
+      "method": "test_structure_section_renders_a_convention_driven_tree",
+      "file": "tests/test_structure.py",
+      "spec": {
+        "given": "a target repo (the py-mini fixture, no git, so the walk fallback runs)",
+        "when": "the orchestrator runs and emits the commodity structure section",
+        "then": "structure.md renders an ASCII tree of the repo skeleton (tree connectors, a fenced block) and excludes build/dep dirs, never crashing on a plain dir",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_structure#test_tree_helper_handles_an_empty_repo",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_structure",
+      "method": "test_tree_helper_handles_an_empty_repo",
+      "file": "tests/test_structure.py",
+      "spec": {
+        "given": "no paths at all (an empty or fully-ignored repo)",
+        "when": "the tree is built and rendered",
+        "then": "it yields an empty line list, never raising",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_structure#test_tree_helper_is_deterministic_and_lists_dirs_before_files",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_structure",
+      "method": "test_tree_helper_is_deterministic_and_lists_dirs_before_files",
+      "file": "tests/test_structure.py",
+      "spec": {
+        "given": "a flat list of repo-relative paths mixing directories and files",
+        "when": "the tree is built and rendered",
+        "then": "output is stable, nests by directory, and at each level directories come before files (so the snapshot reads like a `tree` command, not a flat dump)",
+        "adr": "",
+        "us": "",
+        "ac": "",
+        "complete": true
+      }
     }
   ],
   "sections": [
     "adr-index",
     "coverage",
     "dependencies",
+    "structure",
     "todo"
   ]
 }

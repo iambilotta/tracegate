@@ -4,9 +4,9 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
 
 ## Coverage
 
-- Total tests scanned: **21**
+- Total tests scanned: **25**
 - Tests linked to a User Story: **10**
-- Tests without `@spec.us` (implementation detail): **11**
+- Tests without `@spec.us` (implementation detail): **15**
 - User Stories declared in PRODUCT.md: **4**
 - User Stories with at least one linked test: **4**
 - User Stories declared but **not yet implemented**: **0**
@@ -66,3 +66,7 @@ These tests are valid requirements but exist below the user-story horizon (unit-
 - `FR-tests.test_generate_requirements_golden#test_fixture_covers_the_three_behaviors_the_golden_pins`
 - `FR-tests.test_generate_requirements_golden#test_generator_output_matches_the_golden_file`
 - `FR-tests.test_orchestrator#test_check_on_missing_dir_reports_drift`
+- `FR-tests.test_structure#test_structure_is_indexed_first_in_the_manifest`
+- `FR-tests.test_structure#test_structure_section_renders_a_convention_driven_tree`
+- `FR-tests.test_structure#test_tree_helper_handles_an_empty_repo`
+- `FR-tests.test_structure#test_tree_helper_is_deterministic_and_lists_dirs_before_files`

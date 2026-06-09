@@ -6,9 +6,9 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 
 ## Coverage
 
-- Total tests scanned: **21**
-- With complete spec javadoc: **10** (48%)
-- FR: 21
+- Total tests scanned: **25**
+- With complete spec javadoc: **14** (56%)
+- FR: 25
 
 ## Module `tests`
 
@@ -148,3 +148,31 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 - **Then**: it writes requirements.md (humans) and requirements.json (machines)
 - **User Story**: US-001-zero-config-run
 - **File**: `tests/test_orchestrator.py`
+
+#### `FR-tests.test_structure#test_structure_is_indexed_first_in_the_manifest`
+
+- **Given**: a generated catalog
+- **When**: the MANIFEST is rendered
+- **Then**: it lists structure.md under the read-first Map group, so a fresh session orients from the repo tree before anything else
+- **File**: `tests/test_structure.py`
+
+#### `FR-tests.test_structure#test_structure_section_renders_a_convention_driven_tree`
+
+- **Given**: a target repo (the py-mini fixture, no git, so the walk fallback runs)
+- **When**: the orchestrator runs and emits the commodity structure section
+- **Then**: structure.md renders an ASCII tree of the repo skeleton (tree connectors, a fenced block) and excludes build/dep dirs, never crashing on a plain dir
+- **File**: `tests/test_structure.py`
+
+#### `FR-tests.test_structure#test_tree_helper_handles_an_empty_repo`
+
+- **Given**: no paths at all (an empty or fully-ignored repo)
+- **When**: the tree is built and rendered
+- **Then**: it yields an empty line list, never raising
+- **File**: `tests/test_structure.py`
+
+#### `FR-tests.test_structure#test_tree_helper_is_deterministic_and_lists_dirs_before_files`
+
+- **Given**: a flat list of repo-relative paths mixing directories and files
+- **When**: the tree is built and rendered
+- **Then**: output is stable, nests by directory, and at each level directories come before files (so the snapshot reads like a `tree` command, not a flat dump)
+- **File**: `tests/test_structure.py`

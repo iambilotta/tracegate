@@ -2,6 +2,10 @@
 
 Read this **first** in a fresh session. Every doc below is regenerated from the code (or tests / migrations / properties / pom) on every commit; the markdown is never the source of truth. Path-only links so any tool that opens the manifest can lazy-load.
 
+## Map
+
+- [`structure.md`](./structure.md) — convention-driven repository tree (git-tracked skeleton) — read first to orient
+
 ## Scope & roadmap
 
 - [`requirements.md`](./requirements.md) — tests-as-requirements catalog (FR/NFR/INV/CON/E2E), 100% spec javadoc

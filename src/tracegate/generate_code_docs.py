@@ -380,6 +380,50 @@ TODO_MARKER_RE = re.compile(r"\b(TODO|FIXME|XXX|HACK)\b\s*:?\s*(.*)$")
 TODO_EXCLUDE_DIRS = {"node_modules", "target", "_generated", "dist"}
 
 
+# --- repo structure (the `structure.md` skeleton: a convention-driven tree snapshot) ---
+
+# Build / dependency / VCS / tooling dirs that are never structural signal. Used ONLY by the
+# filesystem-walk fallback; the primary path is `git ls-files`, which respects the repo's own
+# .gitignore (so node_modules / target / build / generated coverage drop out by convention).
+STRUCTURE_EXCLUDE_DIRS = {
+    ".git", "node_modules", "target", "dist", "build", ".venv", "venv",
+    "__pycache__", ".pytest_cache", ".gradle", ".idea", ".mvn", ".next", ".nuxt",
+    ".terraform", "site", ".cache", ".tox", ".mypy_cache", ".ruff_cache",
+}
+STRUCTURE_MAX_ENTRIES = 6000
+
+
+def _build_path_tree(paths: list[str]) -> dict:
+    """Nest sorted repo-relative POSIX paths into a {dir: {...}, file: None} tree."""
+    root: dict = {}
+    for p in paths:
+        parts = [seg for seg in p.split("/") if seg]
+        node = root
+        for seg in parts[:-1]:
+            nxt = node.get(seg)
+            if not isinstance(nxt, dict):
+                nxt = {}
+                node[seg] = nxt
+            node = nxt
+        if parts:
+            node.setdefault(parts[-1], None)  # leave a dir already at this name untouched
+    return root
+
+
+def _render_tree_lines(node: dict, prefix: str = "") -> list[str]:
+    """ASCII tree (`tree`-command style), dirs first then files, each alphabetical."""
+    entries = sorted(node.items(), key=lambda kv: (kv[1] is None, kv[0].lower()))
+    lines: list[str] = []
+    for i, (name, child) in enumerate(entries):
+        last = i == len(entries) - 1
+        connector = "└── " if last else "├── "
+        is_dir = isinstance(child, dict)
+        lines.append(f"{prefix}{connector}{name}{'/' if is_dir else ''}")
+        if is_dir:
+            lines.extend(_render_tree_lines(child, prefix + ("    " if last else "│   ")))
+    return lines
+
+
 @dataclass
 class TodoItem:
     kind: str           # TODO / FIXME / XXX / HACK / @Deprecated
@@ -1496,6 +1540,74 @@ class CodeDocs:
         except Exception:
             return "", -1
 
+
+    def collect_structure_paths(self) -> "tuple[list[str], bool]":
+        """Repo-relative POSIX paths of the structural files, convention-driven.
+
+        Primary: `git ls-files` (respects the repo's own .gitignore, so node_modules /
+        target / build / generated coverage never appear: the convention IS the gitignore).
+        Fallback (non-git target, e.g. a fixture dir): a filesystem walk with the default
+        exclude set. Returns (sorted unique paths capped at STRUCTURE_MAX_ENTRIES, truncated?)."""
+        paths = self._git_tracked_paths()
+        if paths is None:
+            paths = self._walked_paths()
+        ordered = sorted(set(paths))
+        truncated = len(ordered) > STRUCTURE_MAX_ENTRIES
+        return ordered[:STRUCTURE_MAX_ENTRIES], truncated
+
+    def _git_tracked_paths(self) -> "list[str] | None":
+        """Git-tracked files under the repo root, or None when the target is not a git repo."""
+        try:
+            r = subprocess.run(
+                ["git", "ls-files", "--cached", "--exclude-standard"],
+                cwd=self.REPO_ROOT, capture_output=True, text=True, check=False,
+            )
+        except Exception:
+            return None
+        if r.returncode != 0:
+            return None
+        files = [ln for ln in r.stdout.splitlines() if ln.strip()]
+        return files or None
+
+    def _walked_paths(self) -> list[str]:
+        """Filesystem-walk fallback: every file minus the default build/dep/vcs excludes."""
+        out: list[str] = []
+        for f in self.REPO_ROOT.rglob("*"):
+            if not f.is_file():
+                continue
+            if set(f.parts) & STRUCTURE_EXCLUDE_DIRS:
+                continue
+            if any(p.endswith(".egg-info") for p in f.parts):
+                continue
+            out.append(f.relative_to(self.REPO_ROOT).as_posix())
+        return out
+
+    def render_structure(self) -> str:
+        """The `structure.md` skeleton: a convention-driven tree snapshot of the repo.
+
+        Deterministic (sorted), so it only drifts when the tracked file set changes (add /
+        remove / rename), which is exactly when the snapshot should be refreshed."""
+        paths, truncated = self.collect_structure_paths()
+        root_name = self.REPO_ROOT.name or "."
+        lines = [
+            f"# Structure — `{root_name}`",
+            "",
+            "Convention-driven skeleton of the repository: the git-tracked files (respecting "
+            "`.gitignore`, so no `node_modules` / `target` / build output), rendered as a tree. "
+            "A single readable snapshot of where everything lives, for a human or an agent "
+            "orienting in a fresh session. Regenerated on every commit like every `_generated` "
+            "doc; the source of truth is the filesystem, never this markdown.",
+            "",
+            f"_{len(paths)} tracked paths._",
+            "",
+            "```",
+            f"{root_name}/",
+            *_render_tree_lines(_build_path_tree(paths)),
+            "```",
+        ]
+        if truncated:
+            lines += ["", f"_(truncated at {STRUCTURE_MAX_ENTRIES} entries — the repo has more)_"]
+        return "\n".join(lines) + "\n"
 
     def collect_todos(self) -> list[TodoItem]:
         out: list[TodoItem] = []
