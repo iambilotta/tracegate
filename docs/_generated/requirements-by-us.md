@@ -13,8 +13,8 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
 
 ## `US-001-zero-config-run`
 
-- `FR-tests.test_orchestrator#test_zero_config_run_produces_md_and_json`
-  - **Then**: it writes requirements.md (humans) and requirements.json (machines)
+- `FR-tests.test_orchestrator#test_zero_config_writes_markdown_canonical_json_on_demand`
+  - **Then**: it writes the canonical markdown (requirements.md) but does NOT write requirements.json as a file (convention flipped: the verbose JSON twin is no file consumer's input, the .md is the human- and LLM-facing artifact); the machine catalog stays SUPPORTED on demand via render.requirements_json (the `tracegate --json` stdout path)
 
 ## `US-002-drift-gate`
 
@@ -34,8 +34,8 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
   - **Then**: the `.spec` suffix is stripped (`E2E-e2e.smoke#...`, not `...smoke.spec#...`)
 - `FR-tests.test_convergence#test_zero_config_catalog_equals_explicit_subcommands`
   - **Then**: both produce the IDENTICAL set of files with byte-identical content
-- `FR-tests.test_convergence#test_zero_config_emits_requirements_json_and_commodity_sections`
-  - **Then**: the canonical catalog includes requirements.json AND the commodity sections (coverage, todo, adr-index, dependencies, MANIFEST)
+- `FR-tests.test_convergence#test_zero_config_emits_markdown_catalog_and_commodity_sections`
+  - **Then**: the written catalog is the markdown set (requirements.md + by-us) AND the commodity sections (coverage, todo, adr-index, dependencies, MANIFEST), and it does NOT write the verbose requirements.json twin as a file (the flipped convention; the JSON catalog stays available via `tracegate --json`)
 
 ## `US-004-build-artifact-soft-gate`  _(unknown to PRODUCT.md)_
 

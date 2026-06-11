@@ -2,7 +2,7 @@
 
 Convention-driven skeleton of the repository: the git-tracked files (respecting `.gitignore`, so no `node_modules` / `target` / build output), rendered as a tree. A single readable snapshot of where everything lives, for a human or an agent orienting in a fresh session. Regenerated on every commit like every `_generated` doc; the source of truth is the filesystem, never this markdown.
 
-_92 tracked paths._
+_91 tracked paths._
 
 ```
 tracegate/
@@ -12,7 +12,6 @@ tracegate/
 │       └── release.yml
 ├── _generated/
 │   ├── requirements-by-us.md
-│   ├── requirements.json
 │   └── requirements.md
 ├── bin/
 │   └── generate-requirements.sh
@@ -34,7 +33,6 @@ tracegate/
 │   │   ├── dependencies.md
 │   │   ├── MANIFEST.md
 │   │   ├── requirements-by-us.md
-│   │   ├── requirements.json
 │   │   ├── requirements.md
 │   │   ├── structure.md
 │   │   └── todo.md
@@ -100,6 +98,7 @@ tracegate/
 │   │   │   │   │   │                       ├── event/
 │   │   │   │   │   │                       │   └── SampleCreated.java
 │   │   │   │   │   │                       ├── status/
+│   │   │   │   │   │                       │   ├── SampleTransition.java
 │   │   │   │   │   │                       │   ├── Status.java
 │   │   │   │   │   │                       │   └── StatusKind.java
 │   │   │   │   │   │                       └── SampleKind.java

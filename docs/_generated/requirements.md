@@ -79,11 +79,11 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 - **User Story**: US-003-zero-config-convergence
 - **File**: `tests/test_convergence.py`
 
-#### `FR-tests.test_convergence#test_zero_config_emits_requirements_json_and_commodity_sections`
+#### `FR-tests.test_convergence#test_zero_config_emits_markdown_catalog_and_commodity_sections`
 
 - **Given**: a repo detected with zero config
 - **When**: `tracegate .` runs
-- **Then**: the canonical catalog includes requirements.json AND the commodity sections (coverage, todo, adr-index, dependencies, MANIFEST)
+- **Then**: the written catalog is the markdown set (requirements.md + by-us) AND the commodity sections (coverage, todo, adr-index, dependencies, MANIFEST), and it does NOT write the verbose requirements.json twin as a file (the flipped convention; the JSON catalog stays available via `tracegate --json`)
 - **User Story**: US-003-zero-config-convergence
 - **File**: `tests/test_convergence.py`
 
@@ -197,11 +197,11 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 - **User Story**: US-002-drift-gate
 - **File**: `tests/test_orchestrator.py`
 
-#### `FR-tests.test_orchestrator#test_zero_config_run_produces_md_and_json`
+#### `FR-tests.test_orchestrator#test_zero_config_writes_markdown_canonical_json_on_demand`
 
 - **Given**: a target repo detected with zero config
 - **When**: the orchestrator runs without --check
-- **Then**: it writes requirements.md (humans) and requirements.json (machines)
+- **Then**: it writes the canonical markdown (requirements.md) but does NOT write requirements.json as a file (convention flipped: the verbose JSON twin is no file consumer's input, the .md is the human- and LLM-facing artifact); the machine catalog stays SUPPORTED on demand via render.requirements_json (the `tracegate --json` stdout path)
 - **User Story**: US-001-zero-config-run
 - **File**: `tests/test_orchestrator.py`
 

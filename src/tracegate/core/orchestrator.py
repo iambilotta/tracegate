@@ -80,16 +80,19 @@ def _attach(catalog: Catalog, cfg: Config, mod) -> None:
 
 
 def render_outputs(cfg: Config, catalog: Catalog) -> dict[str, str]:
-    """Return {relative-filename: content} for the whole catalog (md + JSON + sections).
+    """Return {relative-filename: content} for the whole catalog (md + sections).
 
-    `requirements.json` is always part of the canonical output (the machine contract,
-    ADR-0006); both the auto path and the explicit `requirements` subcommand emit it.
-    MANIFEST is rendered last, from the full file set, so it indexes every section."""
+    The markdown is the canonical written artifact: `requirements.md` is the human- AND
+    LLM-facing catalog (semantically denser than the JSON twin), so it is what we commit and
+    drift-gate. The machine catalog (`requirements.json`) is NOT written as a file by default
+    (the old convention was wrong: it added verbose churn no file consumer reads, `tracegate
+    diff` parses the .md). It stays fully SUPPORTED on demand via `tracegate --json` (stdout),
+    which renders {@link render.requirements_json} from this same catalog. MANIFEST is rendered
+    last, from the file set, so it indexes every written section."""
     out: dict[str, str] = {}
     out["requirements.md"] = render.requirements_md(catalog.requirements, catalog.label)
     out["requirements-by-us.md"] = render.requirements_by_us_md(
         catalog.requirements, catalog.label, cfg)
-    out["requirements.json"] = render.requirements_json(catalog)
     for name, body in catalog.sections.items():
         out[f"{name}.md"] = body
     out["MANIFEST.md"] = render.manifest_md(catalog.label, set(out))
@@ -100,7 +103,7 @@ def render_outputs(cfg: Config, catalog: Catalog) -> dict[str, str]:
 # FILTERS over `render_outputs`, never a separate code path: `tracegate requirements` and
 # `tracegate code-docs` are the same engine, narrowed (ADR-0009). `None` = the full
 # canonical catalog (the zero-config default).
-_REQUIREMENTS_VIEW = ("requirements.md", "requirements-by-us.md", "requirements.json")
+_REQUIREMENTS_VIEW = ("requirements.md", "requirements-by-us.md")
 _CODE_DOCS_VIEW = (
     "structure.md", "http-endpoints.md", "events.md", "events-graph.md", "projections.md",
     "state-machine.md", "modules.md", "modules-graph.md", "domain-model.md",

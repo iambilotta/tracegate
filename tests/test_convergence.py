@@ -59,18 +59,21 @@ def test_zero_config_catalog_equals_explicit_subcommands(tmp_path: Path):
     assert not diffs, f"content diverged for: {diffs}"
 
 
-def test_zero_config_emits_requirements_json_and_commodity_sections(tmp_path: Path):
+def test_zero_config_emits_markdown_catalog_and_commodity_sections(tmp_path: Path):
     """
     @spec.given a repo detected with zero config
     @spec.when  `tracegate .` runs
-    @spec.then  the canonical catalog includes requirements.json AND the commodity
-                sections (coverage, todo, adr-index, dependencies, MANIFEST)
+    @spec.then  the written catalog is the markdown set (requirements.md + by-us) AND the
+                commodity sections (coverage, todo, adr-index, dependencies, MANIFEST), and it
+                does NOT write the verbose requirements.json twin as a file (the flipped
+                convention; the JSON catalog stays available via `tracegate --json`)
     @spec.us    US-003-zero-config-convergence
     """
     auto = _auto_files(GEST_MINI, tmp_path / "auto")
-    for name in ("requirements.json", "coverage.md", "todo.md", "adr-index.md",
-                 "dependencies.md", "MANIFEST.md"):
+    for name in ("requirements.md", "requirements-by-us.md", "coverage.md", "todo.md",
+                 "adr-index.md", "dependencies.md", "MANIFEST.md"):
         assert name in auto, f"zero-config catalog is missing {name}"
+    assert "requirements.json" not in auto, "requirements.json must not be written as a file"
 
 
 # --- Bug 1: one canonical E2E ID scheme (no `.spec` divergence) --------------

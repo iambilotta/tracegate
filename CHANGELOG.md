@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-06-11
+
+### Changed
+- **`requirements.json` is no longer written as a file by default (flipped convention).**
+  The markdown (`requirements.md`) is the canonical, human- and LLM-facing artifact
+  (semantically denser); the verbose JSON twin was churn no file consumer reads (`tracegate
+  diff` parses the markdown). The machine catalog stays fully SUPPORTED on demand via
+  `tracegate --json` (stdout), rendered from the same catalog — only the auto-written file
+  is dropped. Consumers that committed `requirements.json` should remove it.
+
 ## [1.3.0] — 2026-06-11
 
 ### Added

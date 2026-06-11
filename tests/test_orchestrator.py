@@ -10,16 +10,20 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from tracegate.core import detect, orchestrator  # noqa: E402
+from tracegate.core import detect, orchestrator, render  # noqa: E402
 
 FIXTURE_REPO = Path(__file__).resolve().parent / "fixtures" / "py-mini"
 
 
-def test_zero_config_run_produces_md_and_json(tmp_path: Path):
+def test_zero_config_writes_markdown_canonical_json_on_demand(tmp_path: Path):
     """
     @spec.given a target repo detected with zero config
     @spec.when  the orchestrator runs without --check
-    @spec.then  it writes requirements.md (humans) and requirements.json (machines)
+    @spec.then  it writes the canonical markdown (requirements.md) but does NOT write
+                requirements.json as a file (convention flipped: the verbose JSON twin is no
+                file consumer's input, the .md is the human- and LLM-facing artifact); the
+                machine catalog stays SUPPORTED on demand via render.requirements_json (the
+                `tracegate --json` stdout path)
     @spec.us    US-001-zero-config-run
     """
     cfg = detect.detect(FIXTURE_REPO, out=tmp_path)[0]
@@ -28,7 +32,10 @@ def test_zero_config_run_produces_md_and_json(tmp_path: Path):
     md = (tmp_path / "requirements.md").read_text(encoding="utf-8")
     assert "# Requirements" in md
     assert "FR-tests.test_sample#test_fully_documented_requirement_renders" in md
-    data = json.loads((tmp_path / "requirements.json").read_text(encoding="utf-8"))
+    # the verbose JSON twin is no longer written as a file (the flipped convention)
+    assert not (tmp_path / "requirements.json").exists()
+    # ...but it stays fully available on demand from the same catalog
+    data = json.loads(render.requirements_json(orchestrator.build_catalog(cfg)))
     assert data["tracegate"]["kind"] == "requirements-catalog"
     ids = {r["id"] for r in data["requirements"]}
     assert "INV-tests.test_invariant_sample#test_invariant_holds" in ids
