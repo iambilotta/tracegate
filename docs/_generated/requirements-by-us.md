@@ -4,8 +4,8 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
 
 ## Coverage
 
-- Total tests scanned: **30**
-- Tests linked to a User Story: **15**
+- Total tests scanned: **32**
+- Tests linked to a User Story: **17**
 - Tests without `@spec.us` (implementation detail): **15**
 - User Stories declared in PRODUCT.md: **4**
 - User Stories with at least one linked test: **4**
@@ -61,6 +61,10 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
   - **Then**: events-graph.md is a Mermaid flowchart with emitter --emits--> event --handled by--> projection (group name shown), all derived from the AST
 - `FR-tests.test_diagrams#test_module_map_diagram_renders_cross_module_dependencies`
   - **Then**: modules-graph.md is a Mermaid flowchart with the cross-module arc, derived from the SAME import data modules.md lists (no new parsing), and a cycle verdict line
+- `FR-tests.test_diagrams#test_state_machine_absent_table_renders_a_placeholder_not_a_crash`
+  - **Then**: it emits a placeholder telling the dev to declare the table, never inventing arcs and never crashing (deterministic, no fabrication)
+- `FR-tests.test_diagrams#test_state_machine_diagram_derived_from_the_declared_transition_table`
+  - **Then**: state-machine.md is a Mermaid stateDiagram-v2 with one arc per targeted transition (`[*] --> State: NAME`), and the null-target transition is listed below the diagram, not drawn as an arc — every arc a pure function of the table
 
 ## Implementation detail (no `@spec.us` link)
 

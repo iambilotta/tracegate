@@ -21,6 +21,7 @@ def sections(cfg: Config) -> dict[str, str]:
         "modules": g.render_modules(modules),
         "modules-graph": g.render_modules_graph(modules),
         "domain-model": g.render_domain_model(g.collect_domain_model()),
+        "state-machine": g.render_state_machine(g.collect_state_machines()),
         "ports": g.render_ports(g.collect_ports()),
         "templates": g.render_templates(g.collect_jte_templates()),
         "config": g.render_config(g.collect_config_properties()),

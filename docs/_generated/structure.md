@@ -2,7 +2,7 @@
 
 Convention-driven skeleton of the repository: the git-tracked files (respecting `.gitignore`, so no `node_modules` / `target` / build output), rendered as a tree. A single readable snapshot of where everything lives, for a human or an agent orienting in a fresh session. Regenerated on every commit like every `_generated` doc; the source of truth is the filesystem, never this markdown.
 
-_82 tracked paths._
+_92 tracked paths._
 
 ```
 tracegate/
@@ -85,16 +85,38 @@ tracegate/
 │   │   │   ├── e2e/
 │   │   │   │   └── tests/
 │   │   │   │       └── smoke.spec.ts
-│   │   │   └── src/
-│   │   │       └── test/
-│   │   │           └── java/
-│   │   │               └── it/
-│   │   │                   └── housetreespa/
-│   │   │                       └── gest/
-│   │   │                           └── sample/
-│   │   │                               └── domain/
-│   │   │                                   ├── SampleInvariantTest.java
-│   │   │                                   └── SampleTest.java
+│   │   │   ├── src/
+│   │   │   │   ├── main/
+│   │   │   │   │   ├── java/
+│   │   │   │   │   │   └── it/
+│   │   │   │   │   │       └── housetreespa/
+│   │   │   │   │   │           └── gest/
+│   │   │   │   │   │               ├── audit/
+│   │   │   │   │   │               │   └── SampleAuditProjection.java
+│   │   │   │   │   │               └── sample/
+│   │   │   │   │   │                   ├── command/
+│   │   │   │   │   │                   │   └── CreateSampleService.java
+│   │   │   │   │   │                   └── domain/
+│   │   │   │   │   │                       ├── event/
+│   │   │   │   │   │                       │   └── SampleCreated.java
+│   │   │   │   │   │                       ├── status/
+│   │   │   │   │   │                       │   ├── Status.java
+│   │   │   │   │   │                       │   └── StatusKind.java
+│   │   │   │   │   │                       └── SampleKind.java
+│   │   │   │   │   └── resources/
+│   │   │   │   │       └── db/
+│   │   │   │   │           └── migration/
+│   │   │   │   │               └── V1__sample_audit.sql
+│   │   │   │   └── test/
+│   │   │   │       └── java/
+│   │   │   │           └── it/
+│   │   │   │               └── housetreespa/
+│   │   │   │                   └── gest/
+│   │   │   │                       └── sample/
+│   │   │   │                           └── domain/
+│   │   │   │                               ├── SampleInvariantTest.java
+│   │   │   │                               └── SampleTest.java
+│   │   │   └── pom.xml
 │   │   ├── py-mini/
 │   │   │   ├── tests/
 │   │   │   │   ├── test_invariant_sample.py
@@ -105,10 +127,12 @@ tracegate/
 │   ├── test_adapter_python.py
 │   ├── test_convergence.py
 │   ├── test_detect.py
+│   ├── test_diagrams.py
 │   ├── test_generate_requirements_golden.py
 │   ├── test_orchestrator.py
 │   └── test_structure.py
 ├── .gitignore
+├── CHANGELOG.md
 ├── CLAUDE.md
 ├── Makefile
 ├── PLAN.md

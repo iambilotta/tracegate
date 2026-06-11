@@ -5,10 +5,10 @@
   },
   "label": "tracegate",
   "coverage": {
-    "total": 30,
-    "with_complete_spec": 19,
+    "total": 32,
+    "with_complete_spec": 21,
     "by_category": {
-      "FR": 30
+      "FR": 32
     }
   },
   "requirements": [
@@ -363,6 +363,40 @@
         "given": "two modules where `audit` imports from `sample`",
         "when": "the module-map diagram is generated",
         "then": "modules-graph.md is a Mermaid flowchart with the cross-module arc, derived from the SAME import data modules.md lists (no new parsing), and a cycle verdict line",
+        "adr": "",
+        "us": "US-005-architecture-diagrams",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_diagrams#test_state_machine_absent_table_renders_a_placeholder_not_a_crash",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_diagrams",
+      "method": "test_state_machine_absent_table_renders_a_placeholder_not_a_crash",
+      "file": "tests/test_diagrams.py",
+      "spec": {
+        "given": "a target with NO declared transition table",
+        "when": "the state-machine section renders",
+        "then": "it emits a placeholder telling the dev to declare the table, never inventing arcs and never crashing (deterministic, no fabrication)",
+        "adr": "",
+        "us": "US-005-architecture-diagrams",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_diagrams#test_state_machine_diagram_derived_from_the_declared_transition_table",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_diagrams",
+      "method": "test_state_machine_diagram_derived_from_the_declared_transition_table",
+      "file": "tests/test_diagrams.py",
+      "spec": {
+        "given": "a domain with a declared transition table (a `*Transition` enum whose constants carry their resulting state, null = no single target)",
+        "when": "the state-machine diagram is generated",
+        "then": "state-machine.md is a Mermaid stateDiagram-v2 with one arc per targeted transition (`[*] --> State: NAME`), and the null-target transition is listed below the diagram, not drawn as an arc — every arc a pure function of the table",
         "adr": "",
         "us": "US-005-architecture-diagrams",
         "ac": "",

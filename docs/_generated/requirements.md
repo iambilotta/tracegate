@@ -6,9 +6,9 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 
 ## Coverage
 
-- Total tests scanned: **30**
-- With complete spec javadoc: **19** (63%)
-- FR: 30
+- Total tests scanned: **32**
+- With complete spec javadoc: **21** (66%)
+- FR: 32
 
 ## Module `tests`
 
@@ -155,6 +155,22 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 - **Given**: two modules where `audit` imports from `sample`
 - **When**: the module-map diagram is generated
 - **Then**: modules-graph.md is a Mermaid flowchart with the cross-module arc, derived from the SAME import data modules.md lists (no new parsing), and a cycle verdict line
+- **User Story**: US-005-architecture-diagrams
+- **File**: `tests/test_diagrams.py`
+
+#### `FR-tests.test_diagrams#test_state_machine_absent_table_renders_a_placeholder_not_a_crash`
+
+- **Given**: a target with NO declared transition table
+- **When**: the state-machine section renders
+- **Then**: it emits a placeholder telling the dev to declare the table, never inventing arcs and never crashing (deterministic, no fabrication)
+- **User Story**: US-005-architecture-diagrams
+- **File**: `tests/test_diagrams.py`
+
+#### `FR-tests.test_diagrams#test_state_machine_diagram_derived_from_the_declared_transition_table`
+
+- **Given**: a domain with a declared transition table (a `*Transition` enum whose constants carry their resulting state, null = no single target)
+- **When**: the state-machine diagram is generated
+- **Then**: state-machine.md is a Mermaid stateDiagram-v2 with one arc per targeted transition (`[*] --> State: NAME`), and the null-target transition is listed below the diagram, not drawn as an arc — every arc a pure function of the table
 - **User Story**: US-005-architecture-diagrams
 - **File**: `tests/test_diagrams.py`
 

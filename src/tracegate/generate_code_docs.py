@@ -1254,6 +1254,114 @@ class CodeDocs:
         lines.append("")
         return "\n".join(lines).rstrip() + "\n"
 
+    def collect_state_machines(self) -> "list[tuple[str, str, list[tuple[str, str]]]]":
+        """Find every DECLARED transition table: an enum under `**/domain/**` named
+        `*Transition` whose constants carry a single argument that resolves to a state
+        (a `StatusKind`-style enum constant, or `null` for "no single target"). Returns
+        [(enum_simple_name, file_rel, [(transition_name, resulting_state)])], where
+        resulting_state is the bare state constant ("PLANNED") or "" for a null target.
+
+        This is the poka-yoke pair to gest's ADR-0030: the state machine is data, so the
+        diagram is a pure function of the AST — no operation->state arc is ever hand-drawn."""
+        out: list[tuple[str, str, list[tuple[str, str]]]] = []
+        for jf in sorted(self.SRC_MAIN_JAVA.rglob("*Transition.java")):
+            if "/domain/" not in str(jf).replace("\\", "/"):
+                continue
+            source, root = parse(jf)
+            for n in walk(root):
+                if n.type != "enum_declaration":
+                    continue
+                name_node = n.child_by_field_name("name")
+                if name_node is None:
+                    continue
+                enum_name = node_text(name_node, source)
+                if not enum_name.endswith("Transition"):
+                    continue
+                transitions = self._enum_transitions(n, source)
+                if transitions:
+                    out.append((enum_name, str(jf.relative_to(self.REPO_ROOT)), transitions))
+                break  # one transition enum per file by convention
+        return out
+
+    def _enum_transitions(self, enum_node: Node, source: bytes) -> list[tuple[str, str]]:
+        """[(constant_name, resulting_state)] for each enum constant that carries a single
+        argument. resulting_state is the bare state name (last dotted segment of the arg,
+        e.g. `StatusKind.PLANNED` -> "PLANNED") or "" when the argument is `null`. A constant
+        with no arguments is skipped (it is not a declared transition row)."""
+        out: list[tuple[str, str]] = []
+        body = enum_node.child_by_field_name("body")
+        if body is None:
+            return out
+        for c in body.named_children:
+            if c.type != "enum_constant":
+                continue
+            cn = c.child_by_field_name("name")
+            if cn is None:
+                continue
+            const_name = node_text(cn, source)
+            args = c.child_by_field_name("arguments")
+            if args is None:
+                continue  # bare constant, not a transition row
+            first = next((a for a in args.named_children), None)
+            if first is None:
+                continue
+            txt = node_text(first, source).strip()
+            if txt in ("null", "Optional.empty()"):
+                state = ""
+            else:
+                # `StatusKind.PLANNED` / `PLANNED` -> "PLANNED"; keep only a simple identifier
+                state = txt.rsplit(".", 1)[-1]
+                if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", state):
+                    state = ""  # not a plain state constant (e.g. a literal) -> treat as no-target
+            out.append((const_name, state))
+        return out
+
+    def render_state_machine(self, machines: "list[tuple[str, str, list[tuple[str, str]]]]") -> str:
+        lines = [f"# State machine — {self.APP_LABEL} (as-is)", ""]
+        lines.append(
+            "Auto-generated from every DECLARED transition table (`*Transition` enum under "
+            "`**/domain/**` whose constants carry their resulting state). The state machine is "
+            "DATA, so this `stateDiagram-v2` is a pure function of the AST — every arc is derived, "
+            "never hand-drawn. A transition with no single target state (a generic edit, a removal) "
+            "is listed below the diagram, not drawn as an arc. Run `make code-docs`; the source of "
+            "truth is the transition table in the code, never this markdown."
+        )
+        lines.append("")
+        if not machines:
+            lines.append(
+                "_No declared transition table found. Declare the state machine as data — an enum "
+                "`<Aggregate>Transition` under a `domain` package whose constants name their "
+                "resulting state — and tracegate renders the diagram from it (no hand-drawing)._"
+            )
+            lines.append("")
+            return "\n".join(lines).rstrip() + "\n"
+        lines.append(f"**Transition tables**: {len(machines)}")
+        lines.append("")
+        for enum_name, file_rel, transitions in machines:
+            lines.append(f"## `{enum_name}`")
+            lines.append("")
+            lines.append(f"- **File**: `{file_rel}`")
+            lines.append("")
+            targeted = [(t, s) for t, s in transitions if s]
+            untargeted = [t for t, s in transitions if not s]
+            lines.append("```mermaid")
+            lines.append("stateDiagram-v2")
+            # every resulting state becomes a node; each transition is `[*] --> State : NAME`.
+            # The legacy bridge means the start is unknown, so the operation enters the target
+            # state from the initial pseudo-state, labelled by the transition name (honest:
+            # the table declares the RESULTING state, not the precondition).
+            for tname, state in targeted:
+                lines.append(f"    [*] --> {state}: {tname}")
+            lines.append("```")
+            lines.append("")
+            if untargeted:
+                lines.append(
+                    "Transitions that assert no single target state (not drawn as an arc): "
+                    + ", ".join(f"`{t}`" for t in untargeted)
+                )
+                lines.append("")
+        return "\n".join(lines).rstrip() + "\n"
+
     def parse_flyway_files(self) -> list[FlywayMigration]:
         mig_dir = self.GEST_ROOT / "src" / "main" / "resources" / "db" / "migration"
         out: list[FlywayMigration] = []

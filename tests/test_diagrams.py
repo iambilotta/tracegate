@@ -87,6 +87,52 @@ def test_module_map_diagram_renders_cross_module_dependencies(tmp_path: Path):
     assert "No module cycles" in mg  # the fixture is acyclic
 
 
+def test_state_machine_diagram_derived_from_the_declared_transition_table(tmp_path: Path):
+    """
+    @spec.given a domain with a declared transition table (a `*Transition` enum whose
+                constants carry their resulting state, null = no single target)
+    @spec.when  the state-machine diagram is generated
+    @spec.then  state-machine.md is a Mermaid stateDiagram-v2 with one arc per targeted
+                transition (`[*] --> State: NAME`), and the null-target transition is listed
+                below the diagram, not drawn as an arc — every arc a pure function of the table
+    @spec.us    US-005-architecture-diagrams
+    """
+    files = _generate(tmp_path)
+    sm = files["state-machine.md"]
+    assert sm.startswith("# State machine")
+    assert "```mermaid" in sm and "stateDiagram-v2" in sm
+    assert "[*] --> PLANNED: CREATE" in sm
+    assert "[*] --> CANCELLED: CANCEL" in sm
+    assert "[*] --> EXECUTED: EXECUTE" in sm
+    # the null-target transition is NOT drawn as an arc, it is listed honestly
+    assert "[*] --> " not in sm.split("```")[2] if sm.count("```") >= 3 else True
+    assert "EDIT" not in sm.split("```mermaid")[1].split("```")[0]  # not in the diagram body
+    assert "`EDIT`" in sm  # listed below as no-single-target
+
+
+def test_state_machine_absent_table_renders_a_placeholder_not_a_crash():
+    """
+    @spec.given a target with NO declared transition table
+    @spec.when  the state-machine section renders
+    @spec.then  it emits a placeholder telling the dev to declare the table, never inventing
+                arcs and never crashing (deterministic, no fabrication)
+    @spec.us    US-005-architecture-diagrams
+    """
+    import sys as _sys
+    from pathlib import Path as _P
+    _sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "src"))
+    from tracegate import generate_code_docs as cd
+    from tracegate.core.config import Config
+
+    cfg = Config(repo_root=FIXTURE_REPO, app_root=FIXTURE_REPO, label="x",
+                 package_root="it.housetreespa.gest")
+    g = cd.CodeDocs(cfg)
+    md = g.render_state_machine([])  # no machines
+    assert md.startswith("# State machine")
+    assert "No declared transition table" in md
+    assert "```mermaid" not in md  # no diagram block invented when there is no table
+
+
 def test_diagrams_are_indexed_in_the_manifest(tmp_path: Path):
     """
     @spec.given a generated catalog
@@ -96,7 +142,7 @@ def test_diagrams_are_indexed_in_the_manifest(tmp_path: Path):
     """
     files = _generate(tmp_path)
     manifest = files["MANIFEST.md"]
-    for name in ("domain-model.md", "modules-graph.md", "events-graph.md"):
+    for name in ("domain-model.md", "modules-graph.md", "events-graph.md", "state-machine.md"):
         assert name in manifest, f"MANIFEST missing {name}"
 
 
