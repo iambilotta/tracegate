@@ -12,7 +12,10 @@ from ... import generate_code_docs as cd
 
 def sections(cfg: Config) -> dict[str, str]:
     g = cd.CodeDocs(cfg)
+    events = g.collect_events()
+    projections = g.collect_projections()
     return {
-        "events": g.render_events(g.collect_events()),
-        "projections": g.render_projections(g.collect_projections()),
+        "events": g.render_events(events),
+        "projections": g.render_projections(projections),
+        "events-graph": g.render_events_graph(events, projections),
     }

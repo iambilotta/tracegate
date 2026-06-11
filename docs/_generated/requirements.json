@@ -5,10 +5,10 @@
   },
   "label": "tracegate",
   "coverage": {
-    "total": 25,
-    "with_complete_spec": 14,
+    "total": 30,
+    "with_complete_spec": 19,
     "by_category": {
-      "FR": 25
+      "FR": 30
     }
   },
   "requirements": [
@@ -282,6 +282,91 @@
         "us": "",
         "ac": "",
         "complete": false
+      }
+    },
+    {
+      "id": "FR-tests.test_diagrams#test_diagrams_are_drift_gated",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_diagrams",
+      "method": "test_diagrams_are_drift_gated",
+      "file": "tests/test_diagrams.py",
+      "spec": {
+        "given": "the generated diagrams on disk",
+        "when": "one diagram is tampered and `--check` runs",
+        "then": "the drift-gate exits 2: the diagrams are hard-gated like every other doc",
+        "adr": "",
+        "us": "US-005-architecture-diagrams",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_diagrams#test_diagrams_are_indexed_in_the_manifest",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_diagrams",
+      "method": "test_diagrams_are_indexed_in_the_manifest",
+      "file": "tests/test_diagrams.py",
+      "spec": {
+        "given": "a generated catalog",
+        "when": "the MANIFEST is rendered",
+        "then": "it lists the three architecture diagrams under their topic groups",
+        "adr": "",
+        "us": "US-005-architecture-diagrams",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_diagrams#test_domain_model_diagram_renders_records_sealed_and_enums",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_diagrams",
+      "method": "test_domain_model_diagram_renders_records_sealed_and_enums",
+      "file": "tests/test_diagrams.py",
+      "spec": {
+        "given": "a domain with a sealed interface (Status + permits), records, and enums",
+        "when": "the domain-model diagram is generated",
+        "then": "domain-model.md is a Mermaid classDiagram with the sealed hierarchy (`<|--`), record fields, and `<<enumeration>>`-tagged enums with their constants",
+        "adr": "",
+        "us": "US-005-architecture-diagrams",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_diagrams#test_event_choreography_diagram_wires_emitter_event_projection",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_diagrams",
+      "method": "test_event_choreography_diagram_wires_emitter_event_projection",
+      "file": "tests/test_diagrams.py",
+      "spec": {
+        "given": "a domain event with an emitter call-site and a projection handler",
+        "when": "the event-choreography diagram is generated",
+        "then": "events-graph.md is a Mermaid flowchart with emitter --emits--> event --handled by--> projection (group name shown), all derived from the AST",
+        "adr": "",
+        "us": "US-005-architecture-diagrams",
+        "ac": "",
+        "complete": true
+      }
+    },
+    {
+      "id": "FR-tests.test_diagrams#test_module_map_diagram_renders_cross_module_dependencies",
+      "category": "FR",
+      "module": "tests",
+      "unit": "test_diagrams",
+      "method": "test_module_map_diagram_renders_cross_module_dependencies",
+      "file": "tests/test_diagrams.py",
+      "spec": {
+        "given": "two modules where `audit` imports from `sample`",
+        "when": "the module-map diagram is generated",
+        "then": "modules-graph.md is a Mermaid flowchart with the cross-module arc, derived from the SAME import data modules.md lists (no new parsing), and a cycle verdict line",
+        "adr": "",
+        "us": "US-005-architecture-diagrams",
+        "ac": "",
+        "complete": true
       }
     },
     {

@@ -4,8 +4,8 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
 
 ## Coverage
 
-- Total tests scanned: **25**
-- Tests linked to a User Story: **10**
+- Total tests scanned: **30**
+- Tests linked to a User Story: **15**
 - Tests without `@spec.us` (implementation detail): **15**
 - User Stories declared in PRODUCT.md: **4**
 - User Stories with at least one linked test: **4**
@@ -48,6 +48,19 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
 
 - `FR-tests.test_adapter_java#test_extracts_requirements_with_canonical_repo_relative_paths`
   - **Then**: every file path is canonical full repo-relative, never a truncated form
+
+## `US-005-architecture-diagrams`  _(unknown to PRODUCT.md)_
+
+- `FR-tests.test_diagrams#test_diagrams_are_drift_gated`
+  - **Then**: the drift-gate exits 2: the diagrams are hard-gated like every other doc
+- `FR-tests.test_diagrams#test_diagrams_are_indexed_in_the_manifest`
+  - **Then**: it lists the three architecture diagrams under their topic groups
+- `FR-tests.test_diagrams#test_domain_model_diagram_renders_records_sealed_and_enums`
+  - **Then**: domain-model.md is a Mermaid classDiagram with the sealed hierarchy (`<|--`), record fields, and `<<enumeration>>`-tagged enums with their constants
+- `FR-tests.test_diagrams#test_event_choreography_diagram_wires_emitter_event_projection`
+  - **Then**: events-graph.md is a Mermaid flowchart with emitter --emits--> event --handled by--> projection (group name shown), all derived from the AST
+- `FR-tests.test_diagrams#test_module_map_diagram_renders_cross_module_dependencies`
+  - **Then**: modules-graph.md is a Mermaid flowchart with the cross-module arc, derived from the SAME import data modules.md lists (no new parsing), and a cycle verdict line
 
 ## Implementation detail (no `@spec.us` link)
 

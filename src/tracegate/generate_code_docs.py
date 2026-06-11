@@ -231,6 +231,27 @@ class Projection:
     file_rel: str
 
 
+# --- Domain model (classDiagram: records, sealed interfaces, enums) ------
+
+@dataclass
+class DomainType:
+    """One domain type parsed from `**/domain/**`: a record, a sealed interface, or an enum.
+
+    `kind` is "record" | "interface" | "enum". `fields` is [(name, type)] for records.
+    `permits` is the sealed `permits` list (simple names) for a sealed interface. `constants`
+    is the enum constant list. `package` is the dotted package; `file_rel` the canonical path.
+    """
+    name: str
+    kind: str
+    package: str
+    file_rel: str
+    fields: list[tuple[str, str]] = field(default_factory=list)
+    permits: list[str] = field(default_factory=list)
+    constants: list[str] = field(default_factory=list)
+    is_sealed: bool = False
+    implements: list[str] = field(default_factory=list)  # interfaces this type implements
+
+
 # --- Modules canvas (Modulith-style, Python-side) -----------------------
 
 @dataclass
@@ -953,6 +974,285 @@ class CodeDocs:
             lines.append("")
         return "\n".join(lines).rstrip() + "\n"
 
+
+    def collect_domain_model(self) -> list[DomainType]:
+        """Parse every type under a `**/domain/**` path: records (with fields), sealed
+        interfaces (with their `permits` list), and enums (with their constants). Pure
+        tree-sitter — the same AST the requirements generator uses. The data behind the
+        Mermaid `classDiagram` (records as classes, sealed hierarchies as `<|--`, enums
+        tagged `<<enumeration>>`)."""
+        out: list[DomainType] = []
+        for jf in sorted(self.SRC_MAIN_JAVA.rglob("*.java")):
+            if "/domain/" not in str(jf).replace("\\", "/"):
+                continue
+            source, root = parse(jf)
+            pkg = self._package_of(source, root)
+            file_rel = str(jf.relative_to(self.REPO_ROOT))
+            for n in walk(root):
+                if n.type == "record_declaration":
+                    out.append(self._domain_record(n, source, pkg, file_rel))
+                elif n.type == "interface_declaration":
+                    dt = self._domain_interface(n, source, pkg, file_rel)
+                    if dt is not None:
+                        out.append(dt)
+                elif n.type == "enum_declaration":
+                    out.append(self._domain_enum(n, source, pkg, file_rel))
+        # stable order: package then name
+        out.sort(key=lambda d: (d.package, d.name))
+        return out
+
+    @staticmethod
+    def _package_of(source: bytes, root: Node) -> str:
+        for m in walk(root):
+            if m.type == "package_declaration":
+                for c in m.children:
+                    if c.type in ("scoped_identifier", "identifier"):
+                        return node_text(c, source)
+        return ""
+
+    def _record_fields(self, node: Node, source: bytes) -> list[tuple[str, str]]:
+        fields: list[tuple[str, str]] = []
+        params = node.child_by_field_name("parameters")
+        if params is not None:
+            for p in params.named_children:
+                if p.type != "formal_parameter":
+                    continue
+                t_node = p.child_by_field_name("type")
+                n_node = p.child_by_field_name("name")
+                if t_node is None or n_node is None:
+                    continue
+                fields.append((node_text(n_node, source), node_text(t_node, source)))
+        return fields
+
+    def _implements_of(self, node: Node, source: bytes) -> list[str]:
+        """Simple names in a `implements A, B` (records / classes) clause."""
+        out: list[str] = []
+        for child in node.children:
+            if child.type == "super_interfaces":
+                for t in walk(child):
+                    if t.type == "type_identifier":
+                        out.append(node_text(t, source))
+        return out
+
+    def _domain_record(self, node: Node, source: bytes, pkg: str, file_rel: str) -> DomainType:
+        name_node = node.child_by_field_name("name")
+        name = node_text(name_node, source) if name_node else "?"
+        return DomainType(
+            name=name, kind="record", package=pkg, file_rel=file_rel,
+            fields=self._record_fields(node, source),
+            implements=self._implements_of(node, source),
+        )
+
+    def _domain_interface(self, node: Node, source: bytes, pkg: str, file_rel: str) -> "DomainType | None":
+        name_node = node.child_by_field_name("name")
+        if name_node is None:
+            return None
+        name = node_text(name_node, source)
+        # `sealed` modifier + the `permits` list (simple names).
+        is_sealed = False
+        for child in node.children:
+            if child.type == "modifiers" and "sealed" in node_text(child, source).split():
+                is_sealed = True
+        permits: list[str] = []
+        for child in node.children:
+            if child.type == "permits":
+                for t in walk(child):
+                    if t.type == "type_identifier":
+                        permits.append(node_text(t, source))
+        # ignore the self-reference (`permits Status.Planned` exposes `Status` too in some
+        # grammars); keep only the nested variant names, never the interface itself.
+        permits = [p for p in permits if p != name]
+        return DomainType(
+            name=name, kind="interface", package=pkg, file_rel=file_rel,
+            permits=permits, is_sealed=is_sealed,
+        )
+
+    def _domain_enum(self, node: Node, source: bytes, pkg: str, file_rel: str) -> DomainType:
+        name_node = node.child_by_field_name("name")
+        name = node_text(name_node, source) if name_node else "?"
+        constants: list[str] = []
+        body = node.child_by_field_name("body")
+        if body is not None:
+            for c in body.named_children:
+                if c.type == "enum_constant":
+                    cn = c.child_by_field_name("name")
+                    if cn is not None:
+                        constants.append(node_text(cn, source))
+        return DomainType(
+            name=name, kind="enum", package=pkg, file_rel=file_rel, constants=constants,
+        )
+
+    @staticmethod
+    def _mermaid_id(name: str) -> str:
+        """A Mermaid-safe node id (alnum + underscore). Dots in nested names -> underscore."""
+        return re.sub(r"[^A-Za-z0-9_]", "_", name)
+
+    def render_domain_model(self, types: list[DomainType]) -> str:
+        lines = [f"# Domain model — {self.APP_LABEL} (as-is)", ""]
+        lines.append(
+            "Auto-generated from every type under a `**/domain/**` package, parsed via tree-sitter. "
+            "Records become classes with their components as fields; a `sealed interface` and its "
+            "`permits` list become an inheritance hierarchy (`<|--`); enums are tagged "
+            "`<<enumeration>>` with their constants. This is the shape of the domain the way the "
+            "code declares it — invalid states made unrepresentable show up as the variant payloads. "
+            "Run `make code-docs` to regenerate; the source of truth is the code, never this markdown."
+        )
+        lines.append("")
+        n_rec = sum(1 for t in types if t.kind == "record")
+        n_sealed = sum(1 for t in types if t.kind == "interface" and t.is_sealed)
+        n_enum = sum(1 for t in types if t.kind == "enum")
+        lines.append(
+            f"**Types**: {len(types)} ({n_rec} records · {n_sealed} sealed interfaces · {n_enum} enums)"
+        )
+        lines.append("")
+        lines.append("```mermaid")
+        lines.append("classDiagram")
+        # 1) declare every class/interface/enum node
+        for t in types:
+            mid = self._mermaid_id(t.name)
+            if t.kind == "enum":
+                lines.append(f"    class {mid} {{")
+                lines.append("        <<enumeration>>")
+                for c in t.constants:
+                    lines.append(f"        {c}")
+                lines.append("    }")
+            elif t.kind == "interface":
+                lines.append(f"    class {mid} {{")
+                if t.is_sealed:
+                    lines.append("        <<sealed>>")
+                else:
+                    lines.append("        <<interface>>")
+                lines.append("    }")
+            else:  # record
+                lines.append(f"    class {mid} {{")
+                lines.append("        <<record>>")
+                for fn, ft in t.fields:
+                    # Mermaid renders "Type name" as a field; keep generics readable.
+                    safe_ft = ft.replace("~", " ")
+                    lines.append(f"        +{safe_ft} {fn}")
+                lines.append("    }")
+        # 2) sealed-hierarchy edges (interface <|-- permitted variant), only when the
+        #    permitted type is itself a declared node (so the arrow always lands on a box).
+        declared = {self._mermaid_id(t.name) for t in types}
+        drawn: set[tuple[str, str]] = set()
+        for t in types:
+            if t.kind != "interface" or not t.permits:
+                continue
+            parent = self._mermaid_id(t.name)
+            for variant in t.permits:
+                child = self._mermaid_id(variant)
+                if child in declared and (parent, child) not in drawn:
+                    drawn.add((parent, child))
+                    lines.append(f"    {parent} <|-- {child}")
+        # 3) `implements` edges from records to a declared interface (e.g. event records ->
+        #    their shared interface). Only when the target interface is a declared node AND
+        #    the pair was not already drawn as a sealed `permits` edge (a sealed variant
+        #    both `implements` the interface and appears in its `permits`: draw it once).
+        for t in types:
+            if t.kind != "record" or not t.implements:
+                continue
+            child = self._mermaid_id(t.name)
+            for iface in t.implements:
+                parent = self._mermaid_id(iface)
+                if parent in declared and parent != child and (parent, child) not in drawn:
+                    drawn.add((parent, child))
+                    lines.append(f"    {parent} <|.. {child}")
+        lines.append("```")
+        lines.append("")
+        return "\n".join(lines).rstrip() + "\n"
+
+    def render_events_graph(self, events: list[DomainEvent], projections: list[Projection]) -> str:
+        """A Mermaid choreography graph emitter -> event -> handler/projection. Reuses the
+        Axon collectors (`collect_events` knows emitters, `collect_projections` knows the
+        @EventHandler method per event type + the @ProcessingGroup). No new parsing."""
+        lines = [f"# Event choreography — {self.APP_LABEL} (as-is)", ""]
+        lines.append(
+            "Auto-generated from the same data as `events.md` + `projections.md`: emitters "
+            "(`new EventName(...)` call sites), the events, and the projections (`@ProcessingGroup`) "
+            "whose `@EventHandler` consumes each event. The arrows are the event flow the system "
+            "actually wires, derived from the AST — never hand-drawn. Run `make code-docs`."
+        )
+        lines.append("")
+        lines.append(f"**Events**: {len(events)} · **Projections**: {len(projections)}")
+        lines.append("")
+        # event-name -> set of (projection_class, group) that handle it
+        handlers_by_event: dict[str, list[tuple[str, str]]] = defaultdict(list)
+        for p in projections:
+            for h in p.handlers:
+                handlers_by_event[h.event_type].append((p.class_simple, p.processing_group))
+        lines.append("```mermaid")
+        lines.append("flowchart LR")
+        # node declarations are emitted implicitly by edges; declare classDefs for clarity
+        lines.append("    classDef emitter fill:#eef,stroke:#88a;")
+        lines.append("    classDef event fill:#efe,stroke:#8a8;")
+        lines.append("    classDef projection fill:#fee,stroke:#a88;")
+        emitter_ids: dict[str, str] = {}
+        event_ids: dict[str, str] = {}
+        proj_ids: dict[str, str] = {}
+        for ev in events:
+            ev_id = "ev_" + self._mermaid_id(ev.name)
+            event_ids[ev.name] = ev_id
+            lines.append(f'    {ev_id}["{ev.name}"]:::event')
+            for em in ev.emitters:
+                em_label = Path(em).stem
+                em_id = "em_" + self._mermaid_id(em_label)
+                if em_label not in emitter_ids:
+                    emitter_ids[em_label] = em_id
+                    lines.append(f'    {em_id}("{em_label}"):::emitter')
+                lines.append(f"    {emitter_ids[em_label]} -->|emits| {ev_id}")
+            for proj_class, group in handlers_by_event.get(ev.name, []):
+                pid = "pr_" + self._mermaid_id(proj_class)
+                if proj_class not in proj_ids:
+                    proj_ids[proj_class] = pid
+                    lines.append(f'    {pid}["{proj_class}<br/>(group: {group})"]:::projection')
+                lines.append(f"    {ev_id} -->|handled by| {proj_ids[proj_class]}")
+        lines.append("```")
+        lines.append("")
+        return "\n".join(lines).rstrip() + "\n"
+
+    def render_modules_graph(self, modules: list[Module]) -> str:
+        """A Mermaid module-dependency graph + cycle highlighting, from the EXISTING
+        `collect_modules` data (the same arcs `modules.md` lists as a PlantUML block).
+        GitHub + the Next.js intranet render Mermaid natively; PlantUML they do not."""
+        lines = [f"# Module map — {self.APP_LABEL} (as-is)", ""]
+        lines.append(
+            "Auto-generated from the same data as `modules.md`: each top-level package under "
+            f"`{self.GEST_PACKAGE_ROOT}` is a module, the arrows are the cross-module `import` "
+            "dependencies. A cycle is a Modulith boundary violation (highlighted below). Rendered "
+            "as Mermaid so it shows inline on GitHub and the intranet. Run `make code-docs`."
+        )
+        lines.append("")
+        cycles = detect_module_cycles(modules)
+        if cycles:
+            lines.append(f"> ⚠ **{len(cycles)} module cycle(s) detected** — the red edges below.")
+        else:
+            lines.append("✓ No module cycles.")
+        lines.append("")
+        # the set of directed pairs that participate in a cycle (for edge styling)
+        cycle_edges: set[tuple[str, str]] = set()
+        for cyc in cycles:
+            for a, b in zip(cyc, cyc[1:]):
+                cycle_edges.add((a, b))
+        lines.append("```mermaid")
+        lines.append("flowchart TD")
+        for m in modules:
+            mid = self._mermaid_id(m.name)
+            lines.append(f'    {mid}["{m.name}<br/>({m.file_count} files)"]')
+        edge_index = 0
+        red_indices: list[int] = []
+        for m in modules:
+            mid = self._mermaid_id(m.name)
+            for d in sorted(m.depends_on):
+                did = self._mermaid_id(d)
+                lines.append(f"    {mid} --> {did}")
+                if (m.name, d) in cycle_edges:
+                    red_indices.append(edge_index)
+                edge_index += 1
+        for idx in red_indices:
+            lines.append(f"    linkStyle {idx} stroke:#d33,stroke-width:2px;")
+        lines.append("```")
+        lines.append("")
+        return "\n".join(lines).rstrip() + "\n"
 
     def parse_flyway_files(self) -> list[FlywayMigration]:
         mig_dir = self.GEST_ROOT / "src" / "main" / "resources" / "db" / "migration"

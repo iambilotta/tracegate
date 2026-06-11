@@ -145,13 +145,17 @@ MANIFEST_ORDER = [
     ]),
     ("Architecture", [
         ("modules.md", "Modulith canvas + cross-module dependency graph + cycle detection"),
+        ("modules-graph.md", "Mermaid module-dependency graph (cycles highlighted), renders inline on GitHub/intranet"),
+        ("domain-model.md", "Mermaid class diagram of the domain: records, sealed hierarchies, enums"),
         ("ports.md", "hexagonal ports → adapters matrix"),
         ("templates.md", "JTE template tree (params + include graph)"),
     ]),
     ("Behavior", [
         ("http-endpoints.md", "every HTTP route with javadoc + contract reference"),
         ("events.md", "domain events with emitters + handlers"),
+        ("events-graph.md", "Mermaid choreography graph: emitter → event → projection"),
         ("projections.md", "@ProcessingGroup + read models + ResetHandler idempotence flag"),
+        ("state-machine.md", "Mermaid stateDiagram-v2 from a declared transition table (when present)"),
     ]),
     ("State", [
         ("schema.md", "Flyway migrations + per-table column inventory"),

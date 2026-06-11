@@ -15,9 +15,12 @@ def sections(cfg: Config) -> dict[str, str]:
     route_constants = g.collect_route_constants()
     contracts = g.load_contracts()
     endpoints = g.collect_endpoints(route_constants, contracts)
+    modules = g.collect_modules()
     return {
         "http-endpoints": g.render_endpoints(endpoints),
-        "modules": g.render_modules(g.collect_modules()),
+        "modules": g.render_modules(modules),
+        "modules-graph": g.render_modules_graph(modules),
+        "domain-model": g.render_domain_model(g.collect_domain_model()),
         "ports": g.render_ports(g.collect_ports()),
         "templates": g.render_templates(g.collect_jte_templates()),
         "config": g.render_config(g.collect_config_properties()),

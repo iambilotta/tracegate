@@ -6,9 +6,9 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 
 ## Coverage
 
-- Total tests scanned: **25**
-- With complete spec javadoc: **14** (56%)
-- FR: 25
+- Total tests scanned: **30**
+- With complete spec javadoc: **19** (63%)
+- FR: 30
 
 ## Module `tests`
 
@@ -117,6 +117,46 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 
 - _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
 - **File**: `tests/test_detect.py`
+
+#### `FR-tests.test_diagrams#test_diagrams_are_drift_gated`
+
+- **Given**: the generated diagrams on disk
+- **When**: one diagram is tampered and `--check` runs
+- **Then**: the drift-gate exits 2: the diagrams are hard-gated like every other doc
+- **User Story**: US-005-architecture-diagrams
+- **File**: `tests/test_diagrams.py`
+
+#### `FR-tests.test_diagrams#test_diagrams_are_indexed_in_the_manifest`
+
+- **Given**: a generated catalog
+- **When**: the MANIFEST is rendered
+- **Then**: it lists the three architecture diagrams under their topic groups
+- **User Story**: US-005-architecture-diagrams
+- **File**: `tests/test_diagrams.py`
+
+#### `FR-tests.test_diagrams#test_domain_model_diagram_renders_records_sealed_and_enums`
+
+- **Given**: a domain with a sealed interface (Status + permits), records, and enums
+- **When**: the domain-model diagram is generated
+- **Then**: domain-model.md is a Mermaid classDiagram with the sealed hierarchy (`<|--`), record fields, and `<<enumeration>>`-tagged enums with their constants
+- **User Story**: US-005-architecture-diagrams
+- **File**: `tests/test_diagrams.py`
+
+#### `FR-tests.test_diagrams#test_event_choreography_diagram_wires_emitter_event_projection`
+
+- **Given**: a domain event with an emitter call-site and a projection handler
+- **When**: the event-choreography diagram is generated
+- **Then**: events-graph.md is a Mermaid flowchart with emitter --emits--> event --handled by--> projection (group name shown), all derived from the AST
+- **User Story**: US-005-architecture-diagrams
+- **File**: `tests/test_diagrams.py`
+
+#### `FR-tests.test_diagrams#test_module_map_diagram_renders_cross_module_dependencies`
+
+- **Given**: two modules where `audit` imports from `sample`
+- **When**: the module-map diagram is generated
+- **Then**: modules-graph.md is a Mermaid flowchart with the cross-module arc, derived from the SAME import data modules.md lists (no new parsing), and a cycle verdict line
+- **User Story**: US-005-architecture-diagrams
+- **File**: `tests/test_diagrams.py`
 
 #### `FR-tests.test_generate_requirements_golden#test_fixture_covers_the_three_behaviors_the_golden_pins`
 
