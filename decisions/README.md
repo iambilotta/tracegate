@@ -13,3 +13,4 @@ MADR-lite, supersede-mai-editare. Le porte a senso unico del piano (`../PLAN.md`
 | [0007](./0007-canonical-file-paths.md) | Path canonici: full repo-relative ovunque | **accepted** |
 | [0008](./0008-build-artifact-soft-gate.md) | Sezioni da build-artifact (coverage) soft nel drift-gate | **accepted** |
 | [0009](./0009-zero-config-canonical-output.md) | Zero-config E' il catalog canonico; i subcommand sono viste | **accepted** |
+| [0010](./0010-frontend-vitest-as-fe-category.md) | Test vitest frontend = categoria propria **FE** (adapter framework, stesso engine TS) | **accepted** |

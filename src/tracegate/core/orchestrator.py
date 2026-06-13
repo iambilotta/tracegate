@@ -19,7 +19,7 @@ from .model import Catalog, Requirement
 # Imported lazily so a missing optional grammar never breaks unrelated adapters.
 _LANG_ADAPTERS = ("java", "python")
 # Framework adapters: name -> module exposing `sections(cfg) -> dict[name, markdown]`.
-_FRAMEWORK_ADAPTERS = ("spring", "axon", "flyway", "playwright")
+_FRAMEWORK_ADAPTERS = ("spring", "axon", "flyway", "playwright", "vitest")
 # Commodity adapters: cross-cutting, language-/framework-neutral sections (coverage,
 # todo, adr-index, dependencies). Always run so the zero-config catalog matches what the
 # explicit `code-docs` subcommand produces (ADR-0009 convergence). They expose the same

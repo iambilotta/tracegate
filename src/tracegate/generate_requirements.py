@@ -372,6 +372,7 @@ def render(reqs: list[Requirement], label: str = DEFAULT_APP_SUBDIR) -> str:
         "(`*Test`=FR, `*NfrTest`=NFR, `*InvariantTest`=INV, `*ContractTest`=CON; "
         "the `*IT` Spring/Testcontainers variant suffix is orthogonal: "
         "`*NfrIT`/`*InvariantIT`/`*ContractIT` get the matching category). "
+        f"Frontend vitest tests (`{label}/frontend/src/**/*.{{test,spec}}.ts`) join as **FE**; "
         f"Playwright E2E tests (`{label}/e2e/tests/*.spec.ts`) join as **E2E**. "
         "Spec from javadoc / JSDoc tags `@spec.given` / `@spec.when` / `@spec.then` "
         "(plus optional `@spec.adr` / `@spec.us`). "
@@ -389,7 +390,7 @@ def render(reqs: list[Requirement], label: str = DEFAULT_APP_SUBDIR) -> str:
     lines.append("")
     lines.append(f"- Total tests scanned: **{total}**")
     lines.append(f"- With complete spec javadoc: **{with_spec}** ({pct(with_spec, total)})")
-    for cat in ("FR", "NFR", "INV", "CON", "E2E"):
+    for cat in ("FR", "NFR", "INV", "CON", "FE", "E2E"):
         if by_cat[cat]:
             lines.append(f"- {cat}: {by_cat[cat]}")
     lines.append("")
@@ -404,7 +405,7 @@ def render(reqs: list[Requirement], label: str = DEFAULT_APP_SUBDIR) -> str:
         by_cat_in_mod: dict[str, list[Requirement]] = defaultdict(list)
         for r in by_mod[module]:
             by_cat_in_mod[r.category].append(r)
-        for category in ("FR", "NFR", "INV", "CON", "E2E"):
+        for category in ("FR", "NFR", "INV", "CON", "FE", "E2E"):
             cat_reqs = by_cat_in_mod.get(category, [])
             if not cat_reqs:
                 continue
@@ -612,6 +613,7 @@ def long_name(cat: str) -> str:
         "NFR": "Non-Functional Requirements",
         "INV": "Domain Invariants",
         "CON": "HTTP Boundary Contracts",
+        "FE": "Frontend Component/Unit (vitest)",
         "E2E": "End-to-End Acceptance (Playwright)",
     }.get(cat, cat)
 

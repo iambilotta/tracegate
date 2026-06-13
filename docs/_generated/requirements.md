@@ -2,13 +2,13 @@
 
 Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the test javadoc / docstring instead and rerun. Single source of truth is the test code.
 
-**Convention**: category from the test name (`*Test`=FR, `*NfrTest`=NFR, `*InvariantTest`=INV, `*ContractTest`=CON; Python file markers `*invariant*`/`*nfr*`/`*contract*` map the same way; Playwright E2E tests join as **E2E**). Spec from doc-comment tags `@spec.given` / `@spec.when` / `@spec.then` (plus optional `@spec.adr` / `@spec.us`). Tests without a complete spec are listed with `(spec missing)` so they're visible and lintable.
+**Convention**: category from the test name (`*Test`=FR, `*NfrTest`=NFR, `*InvariantTest`=INV, `*ContractTest`=CON; Python file markers `*invariant*`/`*nfr*`/`*contract*` map the same way; frontend vitest tests join as **FE**; Playwright E2E tests join as **E2E**). Spec from doc-comment tags `@spec.given` / `@spec.when` / `@spec.then` (plus optional `@spec.adr` / `@spec.us`). Tests without a complete spec are listed with `(spec missing)` so they're visible and lintable.
 
 ## Coverage
 
-- Total tests scanned: **32**
-- With complete spec javadoc: **21** (66%)
-- FR: 32
+- Total tests scanned: **39**
+- With complete spec javadoc: **23** (59%)
+- FR: 39
 
 ## Module `tests`
 
@@ -47,6 +47,26 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 - _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
 - **File**: `tests/test_adapter_python.py`
 
+#### `FR-tests.test_adapter_vitest#test_describe_path_is_folded_into_the_method_slug`
+
+- _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
+- **File**: `tests/test_adapter_vitest.py`
+
+#### `FR-tests.test_adapter_vitest#test_extracts_a_documented_frontend_requirement`
+
+- _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
+- **File**: `tests/test_adapter_vitest.py`
+
+#### `FR-tests.test_adapter_vitest#test_no_frontend_tree_yields_nothing`
+
+- _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
+- **File**: `tests/test_adapter_vitest.py`
+
+#### `FR-tests.test_adapter_vitest#test_undocumented_frontend_test_is_incomplete_but_visible`
+
+- _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
+- **File**: `tests/test_adapter_vitest.py`
+
 #### `FR-tests.test_convergence#test_check_is_green_without_jacoco_csv_but_still_catches_code_drift`
 
 - **Given**: a clean checkout with NO build artifact (no target/jacoco.csv)
@@ -68,6 +88,14 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 - **Given**: a Playwright `*.spec.ts` E2E test
 - **When**: the playwright adapter derives its requirement ID
 - **Then**: the `.spec` suffix is stripped (`E2E-e2e.smoke#...`, not `...smoke.spec#...`)
+- **User Story**: US-003-zero-config-convergence
+- **File**: `tests/test_convergence.py`
+
+#### `FR-tests.test_convergence#test_fe_id_strips_test_suffix_and_folds_the_describe_path`
+
+- **Given**: a frontend vitest `*.test.ts` file with a `describe`/`it` nest
+- **When**: the vitest adapter derives its requirement ID
+- **Then**: the category is FE on module `frontend`, the `.test` suffix is stripped (`FE-frontend.ht-calendar#...`, never `...ht-calendar.test#...`), and the enclosing describe title is folded into the method slug
 - **User Story**: US-003-zero-config-convergence
 - **File**: `tests/test_convergence.py`
 
@@ -100,6 +128,19 @@ Auto-generated from test sources by tracegate. Do NOT edit by hand: edit the tes
 - **Given**: a directory with a pyproject.toml and .py files
 - **When**: zero-config detection runs
 - **Then**: it enables the python language adapter and not java
+- **User Story**: US-003-stack-detection
+- **File**: `tests/test_detect.py`
+
+#### `FR-tests.test_detect#test_detects_vitest_from_a_frontend_package_json`
+
+- _(spec missing — add `@spec.given` / `@spec.when` / `@spec.then` javadoc)_
+- **File**: `tests/test_detect.py`
+
+#### `FR-tests.test_detect#test_detects_vitest_from_a_frontend_test_tree`
+
+- **Given**: a Maven app whose frontend/src holds a *.test.ts vitest file
+- **When**: zero-config detection runs
+- **Then**: it enables the vitest framework adapter
 - **User Story**: US-003-stack-detection
 - **File**: `tests/test_detect.py`
 

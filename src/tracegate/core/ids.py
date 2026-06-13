@@ -9,6 +9,7 @@ the adapter before it reaches here, so renaming a test method changes its ID by 
     FR-auth.legacy.LegacyPasswordVerifier#verifies_md5_match     (Java)
     FR-core.detect.detect#enables_python_adapter_on_pyproject    (Python)
     E2E-e2e.screenshots#home_renders                             (Playwright)
+    FE-frontend.ht-calendar#renders_the_week_grid                (vitest)
 """
 from __future__ import annotations
 
@@ -21,6 +22,7 @@ CATEGORY_SUFFIXES = (
     "NfrTest", "NfrIT",
     "Test", "IT",
     ".spec",  # TypeScript Playwright spec files
+    ".test",  # TypeScript vitest test files (`ht-calendar.test.ts` -> `ht-calendar`)
 )
 
 # Suffix -> category. First match wins (same ordering rationale as above).

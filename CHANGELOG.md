@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Frontend vitest tests are now catalogued as a new category `FE` ("Frontend
+  Component/Unit").** A new framework adapter (`adapters/framework/vitest`) parses
+  `frontend/src/**/*.{test,spec}.{ts,tsx}` (`describe` / `it` / `test`) via the SAME
+  tree-sitter-typescript engine the Playwright adapter uses — no second TS engine. The
+  ID scheme mirrors Playwright's E2E derivation: `FE-frontend.<unit>#<describe > it>`,
+  with the `.test` / `.spec` file suffix stripped and the enclosing `describe` titles
+  folded into the method slug. The spec is read from the same JSDoc `@spec.*` tags as
+  Java/Playwright. Zero-config detection enables the adapter on a vitest config, a
+  `frontend/package.json` declaring vitest, or a `frontend/src` test tree, so both
+  `tracegate .` and the explicit `requirements` subcommand pick it up automatically
+  (no new flag). See [`decisions/0010`](./decisions/0010-frontend-vitest-as-fe-category.md).
+- `gest-mini` fixture grew a `frontend/` vitest tree (a documented + a spec-missing test
+  under a `describe`), with adapter, detection, and convergence golden tests.
+
 ## [1.4.0] — 2026-06-11
 
 ### Changed

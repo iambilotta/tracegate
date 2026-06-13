@@ -22,7 +22,7 @@ SRC = HERE.parent / "src"
 sys.path.insert(0, str(SRC))
 
 from tracegate import cli  # noqa: E402
-from tracegate.adapters.framework import playwright  # noqa: E402
+from tracegate.adapters.framework import playwright, vitest  # noqa: E402
 from tracegate.core import detect, orchestrator  # noqa: E402
 
 GEST_MINI = HERE / "fixtures" / "gest-mini"
@@ -90,6 +90,24 @@ def test_e2e_id_strips_spec_suffix_like_every_other_adapter(tmp_path: Path):
     assert e2e_ids, "fixture must contain at least one E2E test"
     assert "E2E-e2e.smoke#home_page_renders" in e2e_ids
     assert all(".spec#" not in i for i in e2e_ids), f"`.spec` leaked into an ID: {e2e_ids}"
+
+
+def test_fe_id_strips_test_suffix_and_folds_the_describe_path(tmp_path: Path):
+    """
+    @spec.given a frontend vitest `*.test.ts` file with a `describe`/`it` nest
+    @spec.when  the vitest adapter derives its requirement ID
+    @spec.then  the category is FE on module `frontend`, the `.test` suffix is stripped
+                (`FE-frontend.ht-calendar#...`, never `...ht-calendar.test#...`), and the
+                enclosing describe title is folded into the method slug
+    @spec.us    US-003-zero-config-convergence
+    """
+    cfg = detect.detect(GEST_MINI)[0]
+    assert "vitest" in cfg.frameworks, "zero-config must detect the frontend vitest adapter"
+    fe_ids = [r.id for r in vitest.requirements(cfg)]
+    assert fe_ids, "fixture must contain at least one FE test"
+    assert "FE-frontend.ht-calendar#ht-calendar > renders the week grid" in fe_ids
+    assert all(".test#" not in i and ".spec#" not in i for i in fe_ids), \
+        f"a TS test-file suffix leaked into an ID: {fe_ids}"
 
 
 # --- Bug 2: build-artifact section does not false-positive the gate ----------

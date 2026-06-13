@@ -47,6 +47,9 @@ class Config:
     contracts_dir: Path = field(default=None)        # type: ignore[assignment]
     generated_dir: Path = field(default=None)        # type: ignore[assignment]
     e2e_tests: Path = field(default=None)            # type: ignore[assignment]
+    # Frontend (vitest) component/unit test tree. Defaults to the app's `frontend/src`
+    # (the housetree convention: vitest specs sit beside the components they test).
+    frontend_tests: Path = field(default=None)       # type: ignore[assignment]
     product_md: Path = field(default=None)           # type: ignore[assignment]
     # Python source tree (for the Python language adapter). Defaults to the app root;
     # detection narrows it to e.g. the `src/` layout.
@@ -65,6 +68,8 @@ class Config:
             self.generated_dir = self.app_root / "_generated"
         if self.e2e_tests is None:
             self.e2e_tests = self.app_root / "e2e" / "tests"
+        if self.frontend_tests is None:
+            self.frontend_tests = self.app_root / "frontend" / "src"
         if self.product_md is None:
             self.product_md = self.app_root / "PRODUCT.md"
         if self.src_python is None:

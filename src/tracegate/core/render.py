@@ -12,7 +12,7 @@ from collections import defaultdict
 from . import javadoc_render
 from .model import Catalog, Requirement
 
-_CAT_ORDER = ("FR", "NFR", "INV", "CON", "E2E")
+_CAT_ORDER = ("FR", "NFR", "INV", "CON", "FE", "E2E")
 
 
 def _long_name(cat: str) -> str:
@@ -21,6 +21,7 @@ def _long_name(cat: str) -> str:
         "NFR": "Non-Functional Requirements",
         "INV": "Domain Invariants",
         "CON": "HTTP Boundary Contracts",
+        "FE": "Frontend Component/Unit (vitest)",
         "E2E": "End-to-End Acceptance (Playwright)",
     }.get(cat, cat)
 
@@ -44,7 +45,7 @@ def requirements_md(reqs: list[Requirement], label: str) -> str:
         "**Convention**: category from the test name "
         "(`*Test`=FR, `*NfrTest`=NFR, `*InvariantTest`=INV, `*ContractTest`=CON; "
         "Python file markers `*invariant*`/`*nfr*`/`*contract*` map the same way; "
-        "Playwright E2E tests join as **E2E**). "
+        "frontend vitest tests join as **FE**; Playwright E2E tests join as **E2E**). "
         "Spec from doc-comment tags `@spec.given` / `@spec.when` / `@spec.then` "
         "(plus optional `@spec.adr` / `@spec.us`). "
         "Tests without a complete spec are listed with `(spec missing)` so they're "

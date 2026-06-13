@@ -69,6 +69,29 @@ def test_infers_the_java_package_root_from_the_single_child_chain(tmp_path: Path
     assert cfg.package_root == "it.acme.app"
 
 
+def test_detects_vitest_from_a_frontend_test_tree(tmp_path: Path):
+    """
+    @spec.given a Maven app whose frontend/src holds a *.test.ts vitest file
+    @spec.when  zero-config detection runs
+    @spec.then  it enables the vitest framework adapter
+    @spec.us    US-003-stack-detection
+    """
+    _write(tmp_path / "pom.xml", "<project/>")
+    _write(tmp_path / "src" / "main" / "java" / "com" / "acme" / "App.java", "package com.acme;")
+    _write(tmp_path / "frontend" / "src" / "components" / "widget.test.ts",
+           "import {it} from 'vitest'; it('renders', () => {});")
+    cfg = detect.detect(tmp_path)[0]
+    assert "vitest" in cfg.frameworks
+
+
+def test_detects_vitest_from_a_frontend_package_json(tmp_path: Path):
+    _write(tmp_path / "pom.xml", "<project/>")
+    _write(tmp_path / "src" / "main" / "java" / "com" / "acme" / "App.java", "package com.acme;")
+    _write(tmp_path / "frontend" / "package.json", '{"devDependencies":{"vitest":"^2.0.0"}}')
+    cfg = detect.detect(tmp_path)[0]
+    assert "vitest" in cfg.frameworks
+
+
 def test_tracegate_toml_overrides_detected_frameworks(tmp_path: Path):
     _write(tmp_path / "pyproject.toml", "[project]\nname='x'\n")
     _write(tmp_path / "mod.py", "def f(): ...\n")

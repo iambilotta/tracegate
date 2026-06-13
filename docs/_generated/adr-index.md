@@ -2,7 +2,7 @@
 
 Auto-generated from `apps/gest/decisions/NNNN-*.md`. Title comes from the H1; status from a `Status: ...` line in the body; supported user stories from `US-NNN-slug` citations anywhere in the file. The 'Candidates' section is a heuristic scan of the codebase for load-bearing decisions (feature flags, invariants, contracts, projections) that have NO matching ADR yet — surface, don't autofix.
 
-**Total ADRs**: 9
+**Total ADRs**: 10
 
 ## Index
 
@@ -17,6 +17,7 @@ Auto-generated from `apps/gest/decisions/NNNN-*.md`. Title comes from the H1; st
 | `ADR-0007` | accepted | 2026-06-08 | [Canonical file paths: full repo-relative, everywhere](decisions/0007-canonical-file-paths.md) | — |
 | `ADR-0008` | accepted | 2026-06-08 | [Build-artifact-derived sections are soft in the drift-gate](decisions/0008-build-artifact-soft-gate.md) | — |
 | `ADR-0009` | accepted | 2026-06-08 | [The zero-config output IS the canonical catalog; explicit subcommands are views](decisions/0009-zero-config-canonical-output.md) | — |
+| `ADR-0010` | accepted | 2026-06-13 | [Frontend vitest tests are their own category (FE)](decisions/0010-frontend-vitest-as-fe-category.md) | — |
 
 ## Candidates (auto-detected, 0 signals)
 

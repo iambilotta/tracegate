@@ -150,7 +150,27 @@ def detect_frameworks(app_root: Path) -> list[str]:
     if any((app_root / n).is_file() for n in ("playwright.config.ts", "playwright.config.js")) \
             or _has_files(app_root / "e2e", ".spec.ts"):
         fw.append("playwright")
+    # vitest: a config file, a frontend package.json declaring vitest, or a frontend/src
+    # tree with *.test.ts / *.spec.ts (the component/unit test layer beside the code).
+    if _detect_vitest(app_root):
+        fw.append("vitest")
     return fw
+
+
+def _detect_vitest(app_root: Path) -> bool:
+    """Frontend vitest present? config file OR a frontend package.json declaring it OR a
+    `frontend/src` tree holding `*.test.ts` / `*.spec.ts`."""
+    if any((app_root / n).is_file() for n in (
+        "vitest.config.ts", "vitest.config.js", "vitest.config.mts",
+        "frontend/vitest.config.ts", "frontend/vitest.config.js", "frontend/vitest.config.mts",
+    )):
+        return True
+    pkg = app_root / "frontend" / "package.json"
+    if pkg.is_file() and "vitest" in pkg.read_text(encoding="utf-8", errors="replace"):
+        return True
+    frontend_src = app_root / "frontend" / "src"
+    return _has_files(frontend_src, ".test.ts") or _has_files(frontend_src, ".test.tsx") \
+        or _has_files(frontend_src, ".spec.ts") or _has_files(frontend_src, ".spec.tsx")
 
 
 def _has_files(root: Path, suffix: str) -> bool:

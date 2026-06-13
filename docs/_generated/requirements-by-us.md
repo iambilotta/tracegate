@@ -4,9 +4,9 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
 
 ## Coverage
 
-- Total tests scanned: **32**
-- Tests linked to a User Story: **17**
-- Tests without `@spec.us` (implementation detail): **15**
+- Total tests scanned: **39**
+- Tests linked to a User Story: **19**
+- Tests without `@spec.us` (implementation detail): **20**
 - User Stories declared in PRODUCT.md: **4**
 - User Stories with at least one linked test: **4**
 - User Stories declared but **not yet implemented**: **0**
@@ -27,11 +27,15 @@ Auto-generated companion to `requirements.md`. Tests link to a User Story via th
   - **Then**: it enables the java language and the spring, axon and flyway adapters
 - `FR-tests.test_detect#test_detects_a_python_app_from_pyproject`
   - **Then**: it enables the python language adapter and not java
+- `FR-tests.test_detect#test_detects_vitest_from_a_frontend_test_tree`
+  - **Then**: it enables the vitest framework adapter
 
 ## `US-003-zero-config-convergence`  _(unknown to PRODUCT.md)_
 
 - `FR-tests.test_convergence#test_e2e_id_strips_spec_suffix_like_every_other_adapter`
   - **Then**: the `.spec` suffix is stripped (`E2E-e2e.smoke#...`, not `...smoke.spec#...`)
+- `FR-tests.test_convergence#test_fe_id_strips_test_suffix_and_folds_the_describe_path`
+  - **Then**: the category is FE on module `frontend`, the `.test` suffix is stripped (`FE-frontend.ht-calendar#...`, never `...ht-calendar.test#...`), and the enclosing describe title is folded into the method slug
 - `FR-tests.test_convergence#test_zero_config_catalog_equals_explicit_subcommands`
   - **Then**: both produce the IDENTICAL set of files with byte-identical content
 - `FR-tests.test_convergence#test_zero_config_emits_markdown_catalog_and_commodity_sections`
@@ -77,6 +81,11 @@ These tests are valid requirements but exist below the user-story horizon (unit-
 - `FR-tests.test_adapter_python#test_extracts_a_documented_python_requirement`
 - `FR-tests.test_adapter_python#test_invariant_filename_routes_to_inv_category`
 - `FR-tests.test_adapter_python#test_undocumented_python_test_is_incomplete`
+- `FR-tests.test_adapter_vitest#test_describe_path_is_folded_into_the_method_slug`
+- `FR-tests.test_adapter_vitest#test_extracts_a_documented_frontend_requirement`
+- `FR-tests.test_adapter_vitest#test_no_frontend_tree_yields_nothing`
+- `FR-tests.test_adapter_vitest#test_undocumented_frontend_test_is_incomplete_but_visible`
+- `FR-tests.test_detect#test_detects_vitest_from_a_frontend_package_json`
 - `FR-tests.test_detect#test_empty_dir_still_returns_one_config_so_a_run_never_no_ops`
 - `FR-tests.test_detect#test_infers_the_java_package_root_from_the_single_child_chain`
 - `FR-tests.test_detect#test_tracegate_toml_overrides_detected_frameworks`

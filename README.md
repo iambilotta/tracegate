@@ -34,7 +34,7 @@ is never required.
 What you get on the first run:
 
 - `requirements.md` — every test, as a requirement, grouped by module and category
-  (FR / NFR / INV / CON / E2E), with a stable traceability ID.
+  (FR / NFR / INV / CON / FE / E2E), with a stable traceability ID.
 - `requirements-by-us.md` — the same tests grouped by the User Story they implement,
   with per-acceptance-criterion coverage.
 - `requirements.json` — the deterministic machine contract (same catalog, CI-friendly).
@@ -108,7 +108,7 @@ tracegate
 │   └── paths        canonical full repo-relative file paths
 ├── adapters/
 │   ├── lang/        java · python            (tree-sitter per language)
-│   └── framework/   spring · axon · flyway · playwright
+│   └── framework/   spring · axon · flyway · playwright · vitest
 └── self          tracegate documents tracegate (see docs/_generated/)
 ```
 
